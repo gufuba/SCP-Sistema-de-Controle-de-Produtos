@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCP — Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<!--
+  A classe "login-body" no body aplica o fundo escuro
+  e centraliza o card de login na tela (veja no style.css).
+  Esta é a única tela SEM a sidebar.
+-->
+<body class="login-body">
+
+  <div class="login-card">
+
+    <!-- Logo / Nome do sistema -->
+    <div class="login-logo">
+      <span>SCP</span>
+      <small>Sistema de Controle de Produtos</small>
+    </div>
+
+    <!--
+      Caixa de erro — começa oculta (display:none no CSS).
+      O JavaScript vai mostrar ela se o login falhar.
+    -->
+    <div class="login-erro" id="msgErro">
+      Usuário ou senha incorretos.
+    </div>
+
+    <!-- Campos do formulário -->
+    <div class="form-grupo">
+      <label for="usuario">Usuário</label>
+      <input
+        type="text"
+        id="usuario"
+        placeholder="Digite seu usuário"
+        autocomplete="username"
+      >
+    </div>
+
+    <div class="form-grupo">
+      <label for="senha">Senha</label>
+      <input
+        type="password"
+        id="senha"
+        placeholder="Digite sua senha"
+        autocomplete="current-password"
+      >
+    </div>
+
+    <!--
+      O botão chama a função "fazerLogin()" definida em login.js.
+      Usamos onclick aqui por simplicidade — em projetos maiores
+      usaríamos addEventListener para separar melhor HTML e JS.
+    -->
+    <button class="btn btn-primario" onclick="fazerLogin()">
+      Entrar
+    </button>
+
+  </div>
+
+  <!--
+    Ordem de carregamento dos scripts:
+    1. Biblioteca oficial do Supabase (carregada da CDN — internet)
+    2. Nosso arquivo de configuração (que usa a biblioteca acima)
+    3. O script específico desta página
+
+    A ordem importa! Se login.js carregar antes de supabase.js,
+    a variável "supabase" não existirá ainda e vai dar erro.
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/login.js"></script>
+
+</body>
+</html>

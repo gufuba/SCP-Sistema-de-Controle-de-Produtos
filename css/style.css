@@ -1,0 +1,670 @@
+/* ============================================================
+   style.css — Estilos globais do sistema SCP
+   ============================================================
+   Organização deste arquivo:
+   1. Variáveis CSS (cores, tamanhos, fontes)
+   2. Reset e base
+   3. Layout principal (sidebar + conteúdo)
+   4. Sidebar
+   5. Componentes reutilizáveis (botões, formulários, tabelas, cards)
+   6. Utilitários
+   ============================================================ */
+
+
+/* ============================================================
+   1. VARIÁVEIS CSS
+   ============================================================
+   Variáveis CSS (custom properties) são definidas no :root
+   e ficam disponíveis em todo o arquivo.
+   Para mudar a cor principal do sistema, basta alterar aqui.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  /* --- Paleta de cores --- */
+  /* Tons neutros — base do sistema, pensados para longas horas de uso */
+  --cor-fundo:        #F0F2F5;   /* fundo geral da página */
+  --cor-fundo-card:   #FFFFFF;   /* fundo de cards e formulários */
+  --cor-borda:        #E2E6EA;   /* bordas suaves */
+  --cor-borda-foco:   #A0B4C8;   /* borda ao focar um input */
+
+  /* Sidebar */
+  --cor-sidebar:      #1E2A35;   /* fundo escuro da sidebar */
+  --cor-sidebar-item: #2E3E4E;   /* fundo do item ativo */
+  --cor-sidebar-text: #8FA3B2;   /* texto inativo na sidebar */
+  --cor-sidebar-ativo:#FFFFFF;   /* texto do item ativo */
+  --cor-sidebar-logo: #4DA8DA;   /* cor do nome SCP */
+
+  /* Textos */
+  --cor-texto:        #2C3E50;   /* texto principal */
+  --cor-texto-suave:  #7F8C8D;   /* texto secundário / labels */
+
+  /* Ações — cores funcionais */
+  --cor-primaria:     #3A7BD5;   /* azul — ação principal (salvar) */
+  --cor-primaria-hover: #2E6AC4;
+  --cor-perigo:       #E74C3C;   /* vermelho — excluir */
+  --cor-perigo-hover: #C0392B;
+  --cor-aviso:        #F39C12;   /* amarelo — editar */
+  --cor-aviso-hover:  #D68910;
+  --cor-sucesso:      #27AE60;   /* verde — confirmações */
+
+  /* --- Tipografia --- */
+  --fonte-base: 'DM Sans', sans-serif;
+  --fonte-mono: 'DM Mono', monospace; /* usada para códigos e IDs */
+
+  /* --- Tamanhos --- */
+  --sidebar-largura: 220px;
+  --raio-borda: 8px;        /* arredondamento padrão dos elementos */
+  --sombra-card: 0 1px 4px rgba(0,0,0,0.07); /* sombra leve nos cards */
+}
+
+
+/* ============================================================
+   2. RESET E BASE
+   ============================================================
+   Reset remove estilos padrão do navegador que variam entre
+   Chrome, Firefox, Safari etc., garantindo consistência.
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box; /* padding e border não aumentam o tamanho do elemento */
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--fonte-base);
+  font-size: 14px;
+  color: var(--cor-texto);
+  background-color: var(--cor-fundo);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased; /* texto mais nítido em Mac/iOS */
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+
+/* ============================================================
+   3. LAYOUT PRINCIPAL
+   ============================================================
+   Usamos CSS Grid para dividir a tela em duas colunas:
+   [sidebar fixa | área de conteúdo que ocupa o resto]
+   ============================================================ */
+.layout {
+  display: grid;
+  /* sidebar tem largura fixa; main ocupa o espaço restante (1fr = 1 fração) */
+  grid-template-columns: var(--sidebar-largura) 1fr;
+  min-height: 100vh; /* ocupa pelo menos a altura total da janela */
+}
+
+/* Área de conteúdo principal (à direita da sidebar) */
+.main-content {
+  padding: 32px;
+  overflow-y: auto; /* scroll interno se o conteúdo for maior que a tela */
+}
+
+/* Cabeçalho de cada página (título + breadcrumb) */
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--cor-texto);
+  letter-spacing: -0.3px;
+}
+
+.page-header p {
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+
+/* ============================================================
+   4. SIDEBAR
+   ============================================================ */
+.sidebar {
+  background-color: var(--cor-sidebar);
+  display: flex;
+  flex-direction: column; /* empilha itens verticalmente */
+  height: 100vh;
+  position: sticky; /* fica fixo enquanto a página rola */
+  top: 0;
+  overflow-y: auto;
+}
+
+/* Logo / Nome do sistema */
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.sidebar-logo span {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--cor-sidebar-logo);
+  letter-spacing: 1px;
+}
+
+.sidebar-logo small {
+  display: block;
+  font-size: 10px;
+  color: var(--cor-sidebar-text);
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Navegação */
+.sidebar-nav {
+  flex: 1; /* ocupa todo o espaço disponível, empurrando o botão Sair para baixo */
+  padding: 16px 0;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--cor-sidebar-text);
+  font-size: 13.5px;
+  font-weight: 400;
+  border-left: 3px solid transparent; /* barra lateral invisível por padrão */
+  transition: all 0.15s ease; /* animação suave ao hover */
+}
+
+/* Estado hover — quando o mouse passa por cima */
+.sidebar-nav a:hover {
+  color: #CBD8E1;
+  background-color: rgba(255,255,255,0.04);
+}
+
+/* Estado ativo — página atual */
+/* Adicionamos a classe "ativo" via JavaScript na página correspondente */
+.sidebar-nav a.ativo {
+  color: var(--cor-sidebar-ativo);
+  background-color: var(--cor-sidebar-item);
+  border-left-color: var(--cor-sidebar-logo); /* barra azul à esquerda */
+  font-weight: 500;
+}
+
+/* Ícone SVG dentro dos links */
+.sidebar-nav a svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0; /* ícone não encolhe se o texto for longo */
+  opacity: 0.7;
+}
+
+.sidebar-nav a.ativo svg {
+  opacity: 1;
+}
+
+/* Divisória de seção na sidebar */
+.sidebar-section-label {
+  padding: 16px 20px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(143,163,178,0.5);
+}
+
+/* Botão Sair — fica sempre no rodapé da sidebar */
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.btn-sair {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--raio-borda);
+  color: var(--cor-sidebar-text);
+  font-size: 13px;
+  font-family: var(--fonte-base);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-sair:hover {
+  background-color: rgba(231,76,60,0.15);
+  border-color: rgba(231,76,60,0.3);
+  color: #E57373;
+}
+
+
+/* ============================================================
+   5. COMPONENTES REUTILIZÁVEIS
+   ============================================================ */
+
+/* --- Cards --- */
+/* Containers brancos com sombra leve, usados em formulários e seções */
+.card {
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio-borda);
+  border: 1px solid var(--cor-borda);
+  box-shadow: var(--sombra-card);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.card-titulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+/* --- Formulários --- */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* auto-fit + minmax: cria colunas que se adaptam ao espaço disponível.
+   Se a tela for larga, cria mais colunas; se for estreita, empilha. */
+
+.form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-grupo label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-grupo input,
+.form-grupo select,
+.form-grupo textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda);
+  font-family: var(--fonte-base);
+  font-size: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-fundo-card);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+/* Estado de foco — quando o usuário clica no campo */
+.form-grupo input:focus,
+.form-grupo select:focus,
+.form-grupo textarea:focus {
+  border-color: var(--cor-borda-foco);
+  box-shadow: 0 0 0 3px rgba(58,123,213,0.1); /* halo azul suave */
+}
+
+/* Campo desabilitado (ex: código gerado automaticamente) */
+.form-grupo input:disabled {
+  background: var(--cor-fundo);
+  color: var(--cor-texto-suave);
+  cursor: not-allowed;
+}
+
+/* Mensagem de erro abaixo do campo */
+.form-erro {
+  font-size: 11px;
+  color: var(--cor-perigo);
+  margin-top: 2px;
+}
+
+/* Linha de botões do formulário */
+.form-acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* --- Botões --- */
+/* Estilo base — todos os botões compartilham isso */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--raio-borda);
+  border: none;
+  font-family: var(--fonte-base);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+/* Variações de cor */
+.btn-primario {
+  background-color: var(--cor-primaria);
+  color: white;
+}
+.btn-primario:hover { background-color: var(--cor-primaria-hover); }
+
+.btn-secundario {
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda);
+}
+.btn-secundario:hover { background-color: var(--cor-borda); }
+
+.btn-perigo {
+  background-color: var(--cor-perigo);
+  color: white;
+}
+.btn-perigo:hover { background-color: var(--cor-perigo-hover); }
+
+.btn-aviso {
+  background-color: var(--cor-aviso);
+  color: white;
+}
+.btn-aviso:hover { background-color: var(--cor-aviso-hover); }
+
+/* Botão pequeno — usado dentro das tabelas */
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+/* --- Tabelas --- */
+.tabela-container {
+  overflow-x: auto; /* scroll horizontal em telas pequenas */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse; /* remove espaço duplo entre bordas */
+  font-size: 13.5px;
+}
+
+thead tr {
+  background-color: var(--cor-fundo);
+  border-bottom: 2px solid var(--cor-borda);
+}
+
+thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cor-texto-suave);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--cor-borda);
+  transition: background-color 0.1s;
+}
+
+tbody tr:hover {
+  background-color: rgba(58,123,213,0.03); /* leve destaque ao passar o mouse */
+}
+
+tbody td {
+  padding: 11px 14px;
+  color: var(--cor-texto);
+}
+
+/* Célula de ações (botões editar/excluir) */
+tbody td.td-acoes {
+  display: flex;
+  gap: 6px;
+}
+
+/* Badge de status (Ativo/Inativo) */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-ativo {
+  background-color: rgba(39,174,96,0.12);
+  color: var(--cor-sucesso);
+}
+
+.badge-inativo {
+  background-color: rgba(127,140,141,0.12);
+  color: var(--cor-texto-suave);
+}
+
+/* --- Cards da Dashboard --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dash-card {
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda);
+  box-shadow: var(--sombra-card);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--cor-texto-suave);
+}
+
+.dash-card-valor {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--cor-texto);
+  font-family: var(--fonte-mono);
+  line-height: 1;
+}
+
+.dash-card-sub {
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+}
+
+/* Linha colorida no topo do card */
+.dash-card::before {
+  content: '';
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.dash-card.azul::before  { background: var(--cor-primaria); }
+.dash-card.verde::before { background: var(--cor-sucesso); }
+.dash-card.amarelo::before { background: var(--cor-aviso); }
+.dash-card.roxo::before  { background: #8E44AD; }
+
+/* --- Toast de notificação --- */
+/* Mensagem que aparece no canto da tela e some sozinha */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: var(--raio-borda);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.25s ease;
+  pointer-events: none; /* não bloqueia cliques na página */
+}
+
+#toast.visivel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#toast.sucesso { background-color: var(--cor-sucesso); }
+#toast.erro    { background-color: var(--cor-perigo); }
+#toast.aviso   { background-color: var(--cor-aviso); }
+
+/* --- Modal de confirmação --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0; /* atalho para top/right/bottom/left: 0 */
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal-overlay.visivel {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio-borda);
+  padding: 28px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  transform: scale(0.96);
+  transition: transform 0.2s ease;
+}
+
+.modal-overlay.visivel .modal {
+  transform: scale(1);
+}
+
+.modal h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.modal p {
+  font-size: 13.5px;
+  color: var(--cor-texto-suave);
+  margin-bottom: 20px;
+}
+
+.modal-acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* --- Tela de Login (sem sidebar) --- */
+.login-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--cor-sidebar); /* fundo escuro igual à sidebar */
+}
+
+.login-card {
+  background: var(--cor-fundo-card);
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo span {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--cor-sidebar-logo);
+  letter-spacing: 2px;
+}
+
+.login-logo small {
+  display: block;
+  font-size: 11px;
+  color: var(--cor-texto-suave);
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+
+.login-card .form-grupo {
+  margin-bottom: 14px;
+}
+
+.login-card .btn-primario {
+  width: 100%;
+  justify-content: center;
+  padding: 11px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.login-erro {
+  background: rgba(231,76,60,0.08);
+  border: 1px solid rgba(231,76,60,0.2);
+  color: var(--cor-perigo);
+  border-radius: var(--raio-borda);
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  display: none; /* oculto por padrão, JS mostra quando necessário */
+}
+
+/* ============================================================
+   6. UTILITÁRIOS
+   ============================================================
+   Classes pequenas para ajustes pontuais sem criar novo CSS.
+   ============================================================ */
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.texto-suave { color: var(--cor-texto-suave); }
+.texto-centro { text-align: center; }
+.negrito { font-weight: 600; }
+.tabela-vazia {
+  text-align: center;
+  padding: 32px;
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+}
