@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCP — Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<!--
+  A partir daqui todas as páginas usam a classe "layout" no body,
+  que divide a tela em [sidebar | conteúdo] via CSS Grid.
+-->
+
+<body class="layout">
+
+    <!--
+    Container onde a sidebar será injetada pelo sidebar.js.
+    Todas as páginas (exceto login) precisam ter este elemento.
+  -->
+    <div id="sidebar-container"></div>
+
+    <!-- Área de conteúdo principal -->
+    <main class="main-content">
+
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p>Visão geral do sistema</p>
+        </div>
+
+        <!-- Cards de resumo — os valores são preenchidos pelo JS -->
+        <div class="dashboard-grid">
+
+            <div class="dash-card azul">
+                <div class="dash-card-label">Clientes</div>
+                <div class="dash-card-valor" id="total-clientes">—</div>
+                <div class="dash-card-sub">cadastrados</div>
+            </div>
+
+            <div class="dash-card verde">
+                <div class="dash-card-label">Produtos ativos</div>
+                <div class="dash-card-valor" id="total-produtos">—</div>
+                <div class="dash-card-sub">disponíveis</div>
+            </div>
+
+            <div class="dash-card amarelo">
+                <div class="dash-card-label">Categorias</div>
+                <div class="dash-card-valor" id="total-categorias">—</div>
+                <div class="dash-card-sub">cadastradas</div>
+            </div>
+
+            <div class="dash-card roxo">
+                <div class="dash-card-label">Orçamentos</div>
+                <div class="dash-card-valor" id="total-orcamentos">—</div>
+                <div class="dash-card-sub">no total</div>
+            </div>
+
+        </div>
+
+        <!-- Últimos orçamentos -->
+        <div class="card">
+            <div class="card-titulo">Últimos Orçamentos</div>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Validade</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-orcamentos-recentes">
+                        <tr>
+                            <td colspan="5" class="tabela-vazia">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/home.js"></script>
+
+</body>
+
+</html>

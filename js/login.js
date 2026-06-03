@@ -47,7 +47,7 @@ async function fazerLogin() {
   // .eq('senha', ...)     → AND senha = '...'
   // .single()             → esperamos no máximo 1 resultado
   // -------------------------------------------------------
-  const { data, error } = await supabase
+  const { data, error } = await dbClient
     .from('usuarios')
     .select('*')
     .eq('usuario', usuario)

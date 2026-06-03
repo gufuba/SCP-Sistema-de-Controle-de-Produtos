@@ -19,4 +19,4 @@ const SUPABASE_ANON_KEY = 'sb_publishable_BOgbk1mTMxQfiownQMpRQQ_fRn5j5cZ';
 // Criamos o "client" do Supabase usando a biblioteca oficial.
 // Essa variável "supabase" será usada em todos os outros arquivos
 // para fazer consultas: supabase.from('tabela').select('*') etc.
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
