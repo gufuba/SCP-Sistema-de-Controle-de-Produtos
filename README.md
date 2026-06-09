@@ -93,6 +93,21 @@ Para testar o sistema:
 > Este usuário tem acesso completo ao ambiente de demonstração. Os dados podem ser alterados por qualquer visitante.
 
 ---
+ 
+## Uso de Inteligência Artificial
+ 
+Este projeto foi desenvolvido com auxílio do **Claude (Anthropic)**, como parte do aprendizado sobre o uso responsável de IA no desenvolvimento de software — tema abordado no curso.
+ 
+A IA foi utilizada como ferramenta de apoio nas seguintes etapas:
+ 
+- **Geração de código** — estrutura inicial das telas, funções de CRUD e integração com o Supabase
+- **Correção de erros** — identificação e resolução de bugs
+- **Explicação de conceitos** — cada trecho de código foi comentado e explicado para garantir o entendimento
+- **Análise de design** — sugestões de melhorias visuais e de usabilidade
+
+Todo o código foi revisado, compreendido e adaptado. Conforme orientação do curso, o uso de IA não substitui o entendimento.
+ 
+---
 
 ## Autor
 
