@@ -36,6 +36,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // -------------------------------------------------------
+// MODAL DE FORMULÁRIO — abre e fecha o painel sobreposto
+// -------------------------------------------------------
+function abrirFormulario() {
+  document.getElementById('modal-formulario').classList.add('visivel');
+}
+
+function fecharFormulario() {
+  document.getElementById('modal-formulario').classList.remove('visivel');
+}
+
+// Fecha o modal ao clicar no fundo escurecido (fora do painel branco)
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('modal-formulario').addEventListener('click', function (e) {
+    if (e.target === this) limparFormulario();
+  });
+});
+
+
+// -------------------------------------------------------
 // LISTAR — busca todos os clientes no Supabase
 // -------------------------------------------------------
 async function carregarClientes() {
@@ -262,11 +281,11 @@ async function editarCliente(id) {
   // Marca que estamos em modo edição com este ID
   clienteEditandoId = id;
 
-  // Atualiza o título do card para indicar edição
+  // Atualiza o título do modal para indicar edição
   document.getElementById('form-titulo').textContent = 'Editar Cliente';
 
-  // Rola a página para o topo para o usuário ver o formulário
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Abre o modal com os dados preenchidos
+  abrirFormulario();
 }
 
 
@@ -314,9 +333,10 @@ function limparFormulario() {
   document.getElementById('cpf_cnpj_cliente').value = '';
   document.getElementById('nome_cliente').value     = '';
 
-  // Volta para modo inserção
+  // Volta para modo inserção e fecha o modal
   clienteEditandoId = null;
   document.getElementById('form-titulo').textContent = 'Novo Cliente';
+  fecharFormulario();
 }
 
 

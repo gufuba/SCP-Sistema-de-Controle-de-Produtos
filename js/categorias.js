@@ -19,7 +19,24 @@ let sortAsc    = true;
 document.addEventListener('DOMContentLoaded', () => {
   renderizarSidebar('categorias');
   carregarCategorias();
+
+  // Fecha o modal ao clicar no fundo escurecido (fora do painel branco)
+  document.getElementById('modal-formulario').addEventListener('click', function (e) {
+    if (e.target === this) limparFormulario();
+  });
 });
+
+
+// -------------------------------------------------------
+// MODAL DE FORMULÁRIO — abre e fecha o painel sobreposto
+// -------------------------------------------------------
+function abrirFormulario() {
+  document.getElementById('modal-formulario').classList.add('visivel');
+}
+
+function fecharFormulario() {
+  document.getElementById('modal-formulario').classList.remove('visivel');
+}
 
 
 // -------------------------------------------------------
@@ -211,7 +228,7 @@ async function editarCategoria(id) {
 
   categoriaEditandoId = id;
   document.getElementById('form-titulo').textContent = 'Editar Categoria';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  abrirFormulario();
 }
 
 
@@ -239,7 +256,7 @@ async function confirmarExclusao() {
   fecharModal();
 
   if (error) {
-    mostrarToast('Erro ao excluir categoria.', 'erro');
+    mostrarToast('Erro ao excluir categoria. Confirme se não existem produtos atrelados a essa categoria.', 'erro');
     console.error('Erro:', error.message);
     return;
   }
@@ -257,6 +274,7 @@ function limparFormulario() {
   document.getElementById('ds_categoria_produto').value = '';
   categoriaEditandoId = null;
   document.getElementById('form-titulo').textContent = 'Nova Categoria';
+  fecharFormulario();
 }
 
 

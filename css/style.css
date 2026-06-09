@@ -392,6 +392,12 @@ ul {
 }
 .btn-aviso:hover { background-color: var(--cor-aviso-hover); }
 
+.btn-sucesso {
+  background-color: var(--cor-sucesso);
+  color: white;
+}
+.btn-sucesso:hover { background-color: #219a52; }
+
 /* Botão pequeno — usado dentro das tabelas */
 .btn-sm {
   padding: 6px 11px;
@@ -852,6 +858,102 @@ tbody td.td-acoes {
 }
 .th-ordenavel.ativo { color: var(--cor-primaria); }
 .th-ordenavel.ativo .sort-icon { opacity: 1; }
+
+
+/* --- Cabeçalho de página com título à esquerda e botão "Novo" à direita --- */
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+
+/* --- Modal de formulário (Novo / Editar) ---
+   Painel que sobrepõe a lista ao clicar em "Novo" ou "Editar".
+   Diferente do modal de exclusão (pequeno, centralizado), este
+   pode ser grande o suficiente para acomodar formulários complexos. */
+.modal-form-overlay {
+  position: fixed;
+  inset: 0;                        /* cobre toda a tela */
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal-form-overlay.visivel {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-form {
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio-borda);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;               /* scroll interno se o formulário for alto */
+  transform: scale(0.97) translateY(10px);
+  transition: transform 0.22s ease;
+}
+
+.modal-form-overlay.visivel .modal-form {
+  transform: scale(1) translateY(0);
+}
+
+/* Variações de largura máxima */
+.modal-form-sm { max-width: 680px; }  /* Clientes */
+.modal-form-md { max-width: 740px; }  /* Produtos */
+.modal-form-lg { max-width: 980px; }  /* Orçamentos */
+
+/* Cabeçalho fixo do modal — fica visível enquanto o corpo rola */
+.modal-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--cor-borda);
+  position: sticky;
+  top: 0;
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio-borda) var(--raio-borda) 0 0;
+  z-index: 10; /* precisa ser maior que o z-index dos campos (TomSelect etc.) para cobri-los ao rolar */
+}
+
+.modal-form-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+/* Botão × para fechar o modal */
+.modal-form-fechar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--cor-texto-suave);
+  font-size: 22px;
+  line-height: 1;
+  padding: 2px 7px;
+  border-radius: 4px;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modal-form-fechar:hover {
+  color: var(--cor-texto);
+  background-color: var(--cor-fundo);
+}
+
+/* Corpo com padding equivalente ao .card */
+.modal-form-body {
+  padding: 24px;
+}
 
 
 /* ============================================================

@@ -44,6 +44,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // -------------------------------------------------------
+// MODAL DE FORMULÁRIO — abre e fecha o painel sobreposto
+// -------------------------------------------------------
+function abrirFormulario() {
+  document.getElementById('modal-formulario').classList.add('visivel');
+}
+
+function fecharFormulario() {
+  document.getElementById('modal-formulario').classList.remove('visivel');
+}
+
+// Fecha o modal ao clicar no fundo escurecido (fora do painel branco)
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('modal-formulario').addEventListener('click', function (e) {
+    if (e.target === this) limparFormulario();
+  });
+});
+
+
+// -------------------------------------------------------
 // Preenche os selects e datas iniciais
 // -------------------------------------------------------
 async function carregarClientes() {
@@ -515,7 +534,7 @@ async function editarOrcamento(id) {
 
   orcamentoEditandoId = id;
   document.getElementById('form-titulo').textContent = 'Editar Orçamento';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  abrirFormulario();
 }
 
 
@@ -582,6 +601,7 @@ function limparFormulario() {
 
   orcamentoEditandoId = null;
   document.getElementById('form-titulo').textContent = 'Novo Orçamento';
+  fecharFormulario();
 }
 
 

@@ -18,92 +18,25 @@
       <p>Cadastro e gerenciamento de produtos</p>
     </div>
 
+    <!-- Tabela de listagem — sempre visível -->
     <div class="card">
-      <div class="card-titulo" id="form-titulo">Novo Produto</div>
-
-      <div class="form-grid">
-
-        <div class="form-grupo">
-          <label for="produtoid">Código</label>
-          <input type="text" id="produtoid" disabled placeholder="Gerado automaticamente">
-        </div>
-
-        <!--
-          O select de categorias é preenchido dinamicamente pelo JS,
-          buscando as categorias cadastradas no banco.
-        -->
-        <div class="form-grupo">
-          <label for="categoriaprodutoid">Categoria *</label>
-          <select id="categoriaprodutoid">
-            <option value="">Carregando categorias...</option>
-          </select>
-        </div>
-
-        <div class="form-grupo">
-          <label for="ds_produto">Descrição *</label>
-          <input type="text" id="ds_produto" placeholder="Nome ou descrição do produto">
-        </div>
-
-        <div class="form-grupo">
-          <label for="vl_venda_produto">Valor de Venda (R$) *</label>
-          <input type="number" id="vl_venda_produto" placeholder="0,00" min="0" step="0.01">
-        </div>
-
-        <div class="form-grupo">
-          <label for="dt_cadastro_produto">Data de Cadastro *</label>
-          <input type="date" id="dt_cadastro_produto">
-        </div>
-
-        <div class="form-grupo">
-          <label for="status_produto">Status *</label>
-          <select id="status_produto">
-            <option value="">Selecione...</option>
-            <option value="Ativo">Ativo</option>
-            <option value="Inativo">Inativo</option>
-          </select>
-        </div>
-
-        <!-- Observação ocupa a linha inteira — span de 2 colunas via CSS -->
-        <div class="form-grupo" style="grid-column: 1 / -1">
-          <label for="obs_produto">Observação</label>
-          <textarea id="obs_produto" rows="3" placeholder="Informações adicionais (opcional)"></textarea>
-        </div>
-
-      </div>
-
-      <div class="form-acoes">
-        <button class="btn btn-primario" onclick="salvarProduto()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:6px;">
+        <div class="busca-tabela" style="margin-bottom:0; flex:1;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          Salvar
-        </button>
-        <button class="btn btn-secundario" onclick="limparFormulario()">
+          <input type="text" id="busca-produtos" placeholder="Buscar por descrição ou categoria..." oninput="filtrarProdutos()">
+          <button class="busca-limpar" id="busca-produtos-limpar" onclick="limparBusca('produtos')" title="Limpar busca">×</button>
+        </div>
+        <button class="btn btn-sucesso" onclick="abrirFormulario()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="1 4 1 10 7 10"/>
-            <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Limpar
+          Novo Produto
         </button>
-      </div>
-
-    </div>
-
-    <div class="card">
-      <div class="card-titulo">Produtos Cadastrados</div>
-
-      <div class="busca-tabela">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" id="busca-produtos" placeholder="Buscar por descrição ou categoria..." oninput="filtrarProdutos()">
-        <button class="busca-limpar" id="busca-produtos-limpar" onclick="limparBusca('produtos')" title="Limpar busca">×</button>
       </div>
       <div class="busca-resultado" id="busca-produtos-resultado"></div>
 
-      <!-- Filtro por status -->
       <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px">
         <label style="font-size:12px; color:var(--cor-texto-suave); font-weight:500">Filtrar por status:</label>
         <select id="filtro-status" onchange="carregarProdutos()"
@@ -130,6 +63,79 @@
             <tr><td colspan="6" class="tabela-vazia">Carregando...</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Modal de formulário: Novo / Editar Produto -->
+    <div class="modal-form-overlay" id="modal-formulario">
+      <div class="modal-form modal-form-md">
+
+        <div class="modal-form-header">
+          <h2 id="form-titulo">Novo Produto</h2>
+          <button class="modal-form-fechar" onclick="limparFormulario()" title="Fechar">×</button>
+        </div>
+
+        <div class="modal-form-body">
+          <div class="form-grid">
+
+            <div class="form-grupo">
+              <label for="produtoid">Código</label>
+              <input type="text" id="produtoid" disabled placeholder="Gerado automaticamente">
+            </div>
+
+            <div class="form-grupo">
+              <label for="categoriaprodutoid">Categoria *</label>
+              <select id="categoriaprodutoid">
+                <option value="">Carregando categorias...</option>
+              </select>
+            </div>
+
+            <div class="form-grupo">
+              <label for="ds_produto">Descrição *</label>
+              <input type="text" id="ds_produto" placeholder="Nome ou descrição do produto">
+            </div>
+
+            <div class="form-grupo">
+              <label for="vl_venda_produto">Valor de Venda (R$) *</label>
+              <input type="number" id="vl_venda_produto" placeholder="0,00" min="0" step="0.01">
+            </div>
+
+            <div class="form-grupo">
+              <label for="dt_cadastro_produto">Data de Cadastro *</label>
+              <input type="date" id="dt_cadastro_produto">
+            </div>
+
+            <div class="form-grupo">
+              <label for="status_produto">Status *</label>
+              <select id="status_produto">
+                <option value="">Selecione...</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+            </div>
+
+            <div class="form-grupo" style="grid-column: 1 / -1">
+              <label for="obs_produto">Observação</label>
+              <textarea id="obs_produto" rows="3" placeholder="Informações adicionais (opcional)"></textarea>
+            </div>
+
+          </div>
+
+          <div class="form-acoes">
+            <button class="btn btn-primario" onclick="salvarProduto()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+              </svg>
+              Salvar
+            </button>
+            <button class="btn btn-secundario" onclick="limparFormulario()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 

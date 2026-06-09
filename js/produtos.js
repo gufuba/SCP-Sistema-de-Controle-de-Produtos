@@ -29,6 +29,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // -------------------------------------------------------
+// MODAL DE FORMULÁRIO — abre e fecha o painel sobreposto
+// -------------------------------------------------------
+function abrirFormulario() {
+  document.getElementById('modal-formulario').classList.add('visivel');
+}
+
+function fecharFormulario() {
+  document.getElementById('modal-formulario').classList.remove('visivel');
+}
+
+// Fecha o modal ao clicar no fundo escurecido (fora do painel branco)
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('modal-formulario').addEventListener('click', function (e) {
+    if (e.target === this) limparFormulario();
+  });
+});
+
+
+// -------------------------------------------------------
 // Preenche o select de categorias com dados do banco
 // -------------------------------------------------------
 async function carregarCategorias() {
@@ -308,7 +327,7 @@ async function editarProduto(id) {
 
   produtoEditandoId = id;
   document.getElementById('form-titulo').textContent = 'Editar Produto';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  abrirFormulario();
 }
 
 
@@ -359,6 +378,7 @@ function limparFormulario() {
   preencherDataHoje(); // volta a data para hoje
   produtoEditandoId = null;
   document.getElementById('form-titulo').textContent = 'Novo Produto';
+  fecharFormulario();
 }
 
 
