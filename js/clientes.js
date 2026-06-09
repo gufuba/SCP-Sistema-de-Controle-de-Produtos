@@ -22,6 +22,9 @@ let clienteExcluindoId = null;
 // Guardamos aqui para poder filtrar sem precisar buscar no banco a cada digitação.
 let clientesCache      = [];
 
+let sortColuna = null; // coluna atualmente ordenada (null = sem ordenação ativa)
+let sortAsc    = true; // true = crescente, false = decrescente
+
 
 // -------------------------------------------------------
 // Inicialização
@@ -70,7 +73,7 @@ function filtrarClientes() {
   document.getElementById('busca-clientes-limpar').classList.toggle('visivel', termo.length > 0);
 
   // Se não há termo, mostra todos; senão, filtra por nome ou CPF/CNPJ
-  const lista = termo
+  let lista = termo
     ? clientesCache.filter(c =>
         c.nome_cliente.toLowerCase().includes(termo) ||
         (c.cpf_cnpj_cliente || '').toLowerCase().includes(termo)
@@ -83,6 +86,17 @@ function filtrarClientes() {
     ? `${lista.length} de ${clientesCache.length} resultado${lista.length !== 1 ? 's' : ''}`
     : '';
 
+  // Ordena a lista filtrada sem modificar o cache original
+  if (sortColuna) {
+    lista = [...lista].sort((a, b) => {
+      const va = typeof a[sortColuna] === 'string' ? a[sortColuna].toLowerCase() : a[sortColuna];
+      const vb = typeof b[sortColuna] === 'string' ? b[sortColuna].toLowerCase() : b[sortColuna];
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }
+
   renderizarClientes(lista, termo);
 }
 
@@ -90,6 +104,32 @@ function filtrarClientes() {
 // O parâmetro "pagina" é passado pelo onclick no HTML — mesma função reutilizada em todas as páginas.
 function limparBusca(pagina) {
   document.getElementById(`busca-${pagina}`).value = '';
+  filtrarClientes();
+}
+
+
+// -------------------------------------------------------
+// ORDENAR — clique no cabeçalho ordena; segundo clique inverte
+// -------------------------------------------------------
+function ordenarPor(coluna) {
+  if (sortColuna === coluna) {
+    sortAsc = !sortAsc;
+  } else {
+    sortColuna = coluna;
+    sortAsc = true;
+  }
+
+  // Atualiza os ícones visuais nos cabeçalhos
+  document.querySelectorAll('.th-ordenavel').forEach(th => {
+    th.classList.remove('ativo');
+    th.querySelector('.sort-icon').textContent = '↕';
+  });
+  const thAtivo = document.querySelector(`[data-coluna="${coluna}"]`);
+  if (thAtivo) {
+    thAtivo.classList.add('ativo');
+    thAtivo.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+  }
+
   filtrarClientes();
 }
 
@@ -111,9 +151,9 @@ function renderizarClientes(lista, termo = '') {
   tbody.innerHTML = lista.map(cliente => `
     <tr>
       <td><span style="font-family: var(--fonte-mono); font-size:12px">${cliente.clienteid}</span></td>
-      <td>${formatarTipo(cliente.tipo_cliente)}</td>
-      <td>${cliente.cpf_cnpj_cliente || '—'}</td>
       <td>${cliente.nome_cliente}</td>
+      <td>${cliente.cpf_cnpj_cliente || '—'}</td>
+      <td>${formatarTipo(cliente.tipo_cliente)}</td>
       <td class="td-acoes">
         <button class="btn btn-tabela-editar btn-sm" onclick="editarCliente(${cliente.clienteid})">
           Editar

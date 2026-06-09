@@ -19,12 +19,13 @@
     </div>
 
     <!--
-      SEÇÃO 1 — Cabeçalho do orçamento
-      Dados gerais: cliente, datas e total
+      SEÇÃO 1 e 2 unificadas em um único card para reduzir scroll.
+      Uma linha divisória (card-secao) separa visualmente o cabeçalho dos itens.
     -->
     <div class="card">
       <div class="card-titulo" id="form-titulo">Novo Orçamento</div>
 
+      <!-- Cabeçalho: cliente, datas e total -->
       <div class="form-grid">
 
         <div class="form-grupo">
@@ -59,14 +60,9 @@
         </div>
 
       </div>
-    </div>
 
-    <!--
-      SEÇÃO 2 — Adicionar itens ao orçamento
-      Produto, quantidade e valor unitário
-    -->
-    <div class="card">
-      <div class="card-titulo">Adicionar Item</div>
+      <!-- Divisor visual — separa o cabeçalho da seção de itens -->
+      <div class="card-secao">Adicionar Item</div>
 
       <div class="form-grid">
 
@@ -187,10 +183,10 @@
         <table>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Cliente</th>
-              <th>Data</th>
-              <th>Validade</th>
+              <th class="th-ordenavel" data-coluna="orcamentoid" onclick="ordenarPor('orcamentoid')"># <span class="sort-icon">↕</span></th>
+              <th class="th-ordenavel" data-coluna="cliente" onclick="ordenarPor('cliente')">Cliente <span class="sort-icon">↕</span></th>
+              <th class="th-ordenavel" data-coluna="dt_orcamento" onclick="ordenarPor('dt_orcamento')">Data <span class="sort-icon">↕</span></th>
+              <th class="th-ordenavel" data-coluna="dt_validade_orcamento" onclick="ordenarPor('dt_validade_orcamento')">Validade <span class="sort-icon">↕</span></th>
               <th>Total</th>
               <th>Ações</th>
             </tr>

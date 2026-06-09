@@ -12,6 +12,9 @@ let categoriaExcluindoId = null;
 // Guardamos aqui para poder filtrar sem precisar buscar no banco a cada digitação.
 let categoriasCache      = [];
 
+let sortColuna = null;
+let sortAsc    = true;
+
 
 document.addEventListener('DOMContentLoaded', () => {
   renderizarSidebar('categorias');
@@ -53,7 +56,7 @@ function filtrarCategorias() {
   document.getElementById('busca-categorias-limpar').classList.toggle('visivel', termo.length > 0);
 
   // Categorias têm apenas um campo de texto — filtra só pela descrição
-  const lista = termo
+  let lista = termo
     ? categoriasCache.filter(c =>
         c.ds_categoria_produto.toLowerCase().includes(termo)
       )
@@ -65,12 +68,47 @@ function filtrarCategorias() {
     ? `${lista.length} de ${categoriasCache.length} resultado${lista.length !== 1 ? 's' : ''}`
     : '';
 
+  if (sortColuna) {
+    lista = [...lista].sort((a, b) => {
+      const va = typeof a[sortColuna] === 'string' ? a[sortColuna].toLowerCase() : a[sortColuna];
+      const vb = typeof b[sortColuna] === 'string' ? b[sortColuna].toLowerCase() : b[sortColuna];
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }
+
   renderizarCategorias(lista, termo);
 }
 
 // Limpa o campo de busca e restaura a lista completa
 function limparBusca(pagina) {
   document.getElementById(`busca-${pagina}`).value = '';
+  filtrarCategorias();
+}
+
+
+// -------------------------------------------------------
+// ORDENAR
+// -------------------------------------------------------
+function ordenarPor(coluna) {
+  if (sortColuna === coluna) {
+    sortAsc = !sortAsc;
+  } else {
+    sortColuna = coluna;
+    sortAsc = true;
+  }
+
+  document.querySelectorAll('.th-ordenavel').forEach(th => {
+    th.classList.remove('ativo');
+    th.querySelector('.sort-icon').textContent = '↕';
+  });
+  const thAtivo = document.querySelector(`[data-coluna="${coluna}"]`);
+  if (thAtivo) {
+    thAtivo.classList.add('ativo');
+    thAtivo.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+  }
+
   filtrarCategorias();
 }
 

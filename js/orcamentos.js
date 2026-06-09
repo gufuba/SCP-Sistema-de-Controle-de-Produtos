@@ -28,6 +28,9 @@ let produtosCache   = [];
 // Cache da listagem de orçamentos — usado pelo filtro de busca
 let orcamentosCache = [];
 
+let sortColuna = null;
+let sortAsc    = true;
+
 
 document.addEventListener('DOMContentLoaded', () => {
   renderizarSidebar('orcamentos');
@@ -372,7 +375,7 @@ function filtrarOrcamentos() {
   document.getElementById('busca-orcamentos-limpar').classList.toggle('visivel', termo.length > 0);
 
   // Busca pelo nome do cliente OU pelo número do orçamento (sem o "#")
-  const lista = termo
+  let lista = termo
     ? orcamentosCache.filter(orc =>
         (orc.cliente?.nome_cliente || '').toLowerCase().includes(termo) ||
         String(orc.orcamentoid).includes(termo)
@@ -385,12 +388,50 @@ function filtrarOrcamentos() {
     ? `${lista.length} de ${orcamentosCache.length} resultado${lista.length !== 1 ? 's' : ''}`
     : '';
 
+  if (sortColuna) {
+    lista = [...lista].sort((a, b) => {
+      // "cliente" é um objeto aninhado — extrai o nome para comparar
+      let va = sortColuna === 'cliente' ? (a.cliente?.nome_cliente || '') : a[sortColuna];
+      let vb = sortColuna === 'cliente' ? (b.cliente?.nome_cliente || '') : b[sortColuna];
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }
+
   renderizarOrcamentos(lista, termo);
 }
 
 // Limpa o campo de busca e restaura a lista completa
 function limparBusca(pagina) {
   document.getElementById(`busca-${pagina}`).value = '';
+  filtrarOrcamentos();
+}
+
+
+// -------------------------------------------------------
+// ORDENAR
+// -------------------------------------------------------
+function ordenarPor(coluna) {
+  if (sortColuna === coluna) {
+    sortAsc = !sortAsc;
+  } else {
+    sortColuna = coluna;
+    sortAsc = true;
+  }
+
+  document.querySelectorAll('.th-ordenavel').forEach(th => {
+    th.classList.remove('ativo');
+    th.querySelector('.sort-icon').textContent = '↕';
+  });
+  const thAtivo = document.querySelector(`[data-coluna="${coluna}"]`);
+  if (thAtivo) {
+    thAtivo.classList.add('ativo');
+    thAtivo.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+  }
+
   filtrarOrcamentos();
 }
 
