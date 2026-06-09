@@ -299,6 +299,7 @@ ul {
 .form-grupo input,
 .form-grupo select,
 .form-grupo textarea {
+  width: 100%; /* garante que o elemento preenche a célula do grid */
   padding: 9px 12px;
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-borda);
@@ -308,6 +309,14 @@ ul {
   background: var(--cor-fundo-card);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   outline: none;
+  line-height: 1.6;
+}
+
+/* Textarea específico — alinha visualmente com os outros campos do grid */
+.form-grupo textarea {
+  resize: vertical;
+  align-self: start; /* evita que o grid estique a altura junto com vizinhos */
+  min-height: 72px;  /* equivalente a ~3 linhas, proporcional aos inputs */
 }
 
 /* Estado de foco — quando o usuário clica no campo */
@@ -387,6 +396,29 @@ ul {
 .btn-sm {
   padding: 5px 10px;
   font-size: 12px;
+}
+
+/* Variantes suaves para ações dentro de tabelas.
+   Usam fundo levemente tingido + borda colorida em vez do fundo sólido saturado,
+   para não disputar atenção visual com o conteúdo da linha. */
+.btn-tabela-editar {
+  background-color: rgba(243,156,18,0.08);
+  color: var(--cor-aviso-hover);
+  border: 1px solid rgba(243,156,18,0.28);
+}
+.btn-tabela-editar:hover {
+  background-color: rgba(243,156,18,0.18);
+  border-color: rgba(243,156,18,0.5);
+}
+
+.btn-tabela-excluir {
+  background-color: rgba(231,76,60,0.07);
+  color: var(--cor-perigo-hover);
+  border: 1px solid rgba(231,76,60,0.22);
+}
+.btn-tabela-excluir:hover {
+  background-color: rgba(231,76,60,0.15);
+  border-color: rgba(231,76,60,0.42);
 }
 
 /* --- Tabelas --- */
@@ -648,6 +680,102 @@ tbody td.td-acoes {
   margin-bottom: 14px;
   display: none; /* oculto por padrão, JS mostra quando necessário */
 }
+
+/* --- Barra de busca das tabelas --- */
+.busca-tabela {
+  position: relative;
+  margin-bottom: 6px;  /* reduzido — o contador de resultados ocupa o espaço abaixo */
+  max-width: 360px;    /* tamanho máximo definido aqui, não no input */
+}
+
+.busca-tabela input {
+  width: 100%;
+  padding: 8px 32px 8px 36px; /* padding-right reserva espaço para o botão × */
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda);
+  font-family: var(--fonte-base);
+  font-size: 13.5px;
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.busca-tabela input:focus {
+  border-color: var(--cor-borda-foco);
+  box-shadow: 0 0 0 3px rgba(58,123,213,0.1);
+  background: var(--cor-fundo-card);
+}
+
+.busca-tabela input::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+/* Ícone de lupa — alinhado à esquerda do input */
+.busca-tabela > svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cor-texto-suave);
+  pointer-events: none;
+}
+
+/* Botão × para limpar o campo — aparece só quando há texto digitado */
+.busca-limpar {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--cor-texto-suave);
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: none;            /* escondido por padrão */
+  transition: color 0.15s;
+}
+
+.busca-limpar:hover {
+  color: var(--cor-texto);
+}
+
+.busca-limpar.visivel {
+  display: block;
+}
+
+/* Contador de resultados abaixo do campo de busca */
+.busca-resultado {
+  font-size: 11px;
+  color: var(--cor-texto-suave);
+  margin-top: 5px;
+  margin-bottom: 12px;
+  min-height: 15px; /* reserva espaço para evitar salto de layout */
+}
+
+/* --- Cards do dashboard clicáveis --- */
+/* O <a> envolve o card e herda as dimensões do grid */
+.dash-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--raio-borda);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dash-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* Destaca a borda do card ao passar o mouse */
+.dash-card-link:hover .dash-card {
+  border-color: var(--cor-borda-foco);
+}
+
 
 /* ============================================================
    6. UTILITÁRIOS

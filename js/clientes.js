@@ -6,16 +6,21 @@
 //   - Salvar: verifica se é INSERT (novo) ou UPDATE (edição)
 //   - Editar: preenche o formulário com os dados do registro
 //   - Excluir: abre modal de confirmação, depois remove
+//   - Buscar: filtra o array em memória (sem nova chamada ao banco)
 // ============================================================
 
 
 // Variável que guarda o ID do cliente sendo editado.
 // null = nenhum cliente em edição (modo inserção)
 // número = ID do cliente que está sendo editado
-let clienteEditandoId = null;
+let clienteEditandoId  = null;
 
 // Guarda o ID do cliente que será excluído (definido ao clicar em Excluir)
 let clienteExcluindoId = null;
+
+// Cache dos dados carregados do banco.
+// Guardamos aqui para poder filtrar sem precisar buscar no banco a cada digitação.
+let clientesCache      = [];
 
 
 // -------------------------------------------------------
@@ -45,23 +50,75 @@ async function carregarClientes() {
     return;
   }
 
-  if (!data || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="tabela-vazia">Nenhum cliente cadastrado.</td></tr>';
+  // Salva os dados no cache e aplica o filtro atual.
+  // Se o campo de busca estiver vazio, exibe tudo.
+  // Se já houver um termo digitado, o filtro é mantido após salvar/excluir.
+  clientesCache = data || [];
+  filtrarClientes();
+}
+
+
+// -------------------------------------------------------
+// BUSCAR — filtra o cache pelo termo digitado
+// -------------------------------------------------------
+// Esta função é chamada pelo oninput do campo de busca.
+// Ela não vai ao banco — filtra apenas o array já carregado em memória.
+function filtrarClientes() {
+  const termo = document.getElementById('busca-clientes').value.toLowerCase().trim();
+
+  // Mostra o botão × apenas quando há texto digitado
+  document.getElementById('busca-clientes-limpar').classList.toggle('visivel', termo.length > 0);
+
+  // Se não há termo, mostra todos; senão, filtra por nome ou CPF/CNPJ
+  const lista = termo
+    ? clientesCache.filter(c =>
+        c.nome_cliente.toLowerCase().includes(termo) ||
+        (c.cpf_cnpj_cliente || '').toLowerCase().includes(termo)
+      )
+    : clientesCache;
+
+  // Atualiza o contador de resultados abaixo do campo
+  const resultado = document.getElementById('busca-clientes-resultado');
+  resultado.textContent = termo
+    ? `${lista.length} de ${clientesCache.length} resultado${lista.length !== 1 ? 's' : ''}`
+    : '';
+
+  renderizarClientes(lista, termo);
+}
+
+// Limpa o campo de busca e restaura a lista completa.
+// O parâmetro "pagina" é passado pelo onclick no HTML — mesma função reutilizada em todas as páginas.
+function limparBusca(pagina) {
+  document.getElementById(`busca-${pagina}`).value = '';
+  filtrarClientes();
+}
+
+
+// Renderiza a tabela a partir de uma lista (pode ser o cache completo ou filtrado)
+function renderizarClientes(lista, termo = '') {
+  const tbody = document.getElementById('tabela-clientes');
+
+  if (!lista || lista.length === 0) {
+    // Mensagem diferente dependendo se há filtro ativo ou a tabela está vazia
+    const msg = termo
+      ? `Nenhum cliente encontrado para "${termo}".`
+      : 'Nenhum cliente cadastrado.';
+    tbody.innerHTML = `<tr><td colspan="5" class="tabela-vazia">${msg}</td></tr>`;
     return;
   }
 
   // Monta uma linha da tabela para cada cliente
-  tbody.innerHTML = data.map(cliente => `
+  tbody.innerHTML = lista.map(cliente => `
     <tr>
       <td><span style="font-family: var(--fonte-mono); font-size:12px">${cliente.clienteid}</span></td>
       <td>${formatarTipo(cliente.tipo_cliente)}</td>
       <td>${cliente.cpf_cnpj_cliente || '—'}</td>
       <td>${cliente.nome_cliente}</td>
       <td class="td-acoes">
-        <button class="btn btn-aviso btn-sm" onclick="editarCliente(${cliente.clienteid})">
+        <button class="btn btn-tabela-editar btn-sm" onclick="editarCliente(${cliente.clienteid})">
           Editar
         </button>
-        <button class="btn btn-perigo btn-sm" onclick="abrirModalExclusao(${cliente.clienteid})">
+        <button class="btn btn-tabela-excluir btn-sm" onclick="abrirModalExclusao(${cliente.clienteid})">
           Excluir
         </button>
       </td>
@@ -75,31 +132,21 @@ async function carregarClientes() {
 // -------------------------------------------------------
 async function salvarCliente() {
   // Coleta os valores dos campos
-  const tipo   = document.getElementById('tipo_cliente').value;
+  const tipo    = document.getElementById('tipo_cliente').value;
   const cpfCnpj = document.getElementById('cpf_cnpj_cliente').value.trim();
-  const nome   = document.getElementById('nome_cliente').value.trim();
+  const nome    = document.getElementById('nome_cliente').value.trim();
 
   // Validação — campos obrigatórios
-  // Se qualquer um estiver vazio, exibe toast e interrompe
-  if (!tipo) {
-    mostrarToast('Selecione o tipo de cliente.', 'aviso');
-    return;
-  }
-  if (!cpfCnpj) {
-    mostrarToast('Informe o CPF ou CNPJ.', 'aviso');
-    return;
-  }
-  if (!nome) {
-    mostrarToast('Informe o nome do cliente.', 'aviso');
-    return;
-  }
+  if (!tipo)    { mostrarToast('Selecione o tipo de cliente.', 'aviso'); return; }
+  if (!cpfCnpj) { mostrarToast('Informe o CPF ou CNPJ.', 'aviso'); return; }
+  if (!nome)    { mostrarToast('Informe o nome do cliente.', 'aviso'); return; }
 
-  // Objeto com os dados a serem salvos
-  // Os nomes das propriedades devem ser IGUAIS aos nomes das colunas no banco
+  // Objeto com os dados a serem salvos.
+  // Os nomes das propriedades devem ser IGUAIS aos nomes das colunas no banco.
   const dados = {
-    tipo_cliente:      tipo,
-    cpf_cnpj_cliente:  cpfCnpj,
-    nome_cliente:      nome
+    tipo_cliente:     tipo,
+    cpf_cnpj_cliente: cpfCnpj,
+    nome_cliente:     nome
   };
 
   if (clienteEditandoId === null) {
@@ -135,7 +182,7 @@ async function inserirCliente(dados) {
 async function atualizarCliente(id, dados) {
   const { error } = await dbClient
     .from('cliente')
-    .update(dados)       // .update() altera os campos informados
+    .update(dados)        // .update() altera os campos informados
     .eq('clienteid', id); // WHERE clienteid = id
 
   if (error) {
@@ -201,7 +248,7 @@ async function confirmarExclusao() {
 
   const { error } = await dbClient
     .from('cliente')
-    .delete()                          // .delete() remove o registro
+    .delete()                             // .delete() remove o registro
     .eq('clienteid', clienteExcluindoId); // WHERE clienteid = id
 
   fecharModal();
@@ -237,8 +284,8 @@ function limparFormulario() {
 // Funções utilitárias
 // -------------------------------------------------------
 
-// Converte 'F'/'J' para texto legível na tabela
-// Isso é só para exibição — o banco continua guardando 'F' e 'J'
+// Converte 'F'/'J' para texto legível na tabela.
+// Isso é só para exibição — o banco continua guardando 'F' e 'J'.
 function formatarTipo(tipo) {
   if (tipo === 'F') return 'Pessoa Física';
   if (tipo === 'J') return 'Pessoa Jurídica';
@@ -246,7 +293,7 @@ function formatarTipo(tipo) {
 }
 
 
-// Exibe uma mensagem temporária no canto da tela
+// Exibe uma mensagem temporária no canto da tela.
 // tipo: 'sucesso' | 'erro' | 'aviso'
 function mostrarToast(mensagem, tipo = 'sucesso') {
   const toast = document.getElementById('toast');

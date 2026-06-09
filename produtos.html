@@ -66,8 +66,7 @@
         <!-- Observação ocupa a linha inteira — span de 2 colunas via CSS -->
         <div class="form-grupo" style="grid-column: 1 / -1">
           <label for="obs_produto">Observação</label>
-          <textarea id="obs_produto" rows="2" placeholder="Informações adicionais (opcional)"
-            style="resize: vertical"></textarea>
+          <textarea id="obs_produto" rows="3" placeholder="Informações adicionais (opcional)"></textarea>
         </div>
 
       </div>
@@ -92,19 +91,27 @@
 
     </div>
 
-    <!-- Filtro por status acima da tabela -->
     <div class="card">
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px">
-        <div class="card-titulo" style="margin-bottom:0; border:none; padding:0">Produtos Cadastrados</div>
-        <div style="display:flex; gap:8px; align-items:center">
-          <label style="font-size:12px; color:var(--cor-texto-suave); font-weight:500">Filtrar:</label>
-          <select id="filtro-status" onchange="carregarProdutos()"
-            style="padding:6px 10px; border:1px solid var(--cor-borda); border-radius:var(--raio-borda); font-size:13px; background:var(--cor-fundo-card)">
-            <option value="">Todos</option>
-            <option value="Ativo">Ativos</option>
-            <option value="Inativo">Inativos</option>
-          </select>
-        </div>
+      <div class="card-titulo">Produtos Cadastrados</div>
+
+      <div class="busca-tabela">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="busca-produtos" placeholder="Buscar por descrição ou categoria..." oninput="filtrarProdutos()">
+        <button class="busca-limpar" id="busca-produtos-limpar" onclick="limparBusca('produtos')" title="Limpar busca">×</button>
+      </div>
+      <div class="busca-resultado" id="busca-produtos-resultado"></div>
+
+      <!-- Filtro por status -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px">
+        <label style="font-size:12px; color:var(--cor-texto-suave); font-weight:500">Filtrar por status:</label>
+        <select id="filtro-status" onchange="carregarProdutos()"
+          style="padding:6px 10px; border:1px solid var(--cor-borda); border-radius:var(--raio-borda); font-size:13px; background:var(--cor-fundo-card)">
+          <option value="">Todos</option>
+          <option value="Ativo">Ativos</option>
+          <option value="Inativo">Inativos</option>
+        </select>
       </div>
 
       <div class="tabela-container">

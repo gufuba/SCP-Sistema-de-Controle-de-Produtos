@@ -78,6 +78,15 @@
     <div class="card">
       <div class="card-titulo">Clientes Cadastrados</div>
 
+      <div class="busca-tabela">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="busca-clientes" placeholder="Buscar por nome ou CPF/CNPJ..." oninput="filtrarClientes()">
+        <button class="busca-limpar" id="busca-clientes-limpar" onclick="limparBusca('clientes')" title="Limpar busca">×</button>
+      </div>
+      <div class="busca-resultado" id="busca-clientes-resultado"></div>
+
       <div class="tabela-container">
         <table>
           <thead>
