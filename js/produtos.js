@@ -65,16 +65,16 @@ async function carregarCategorias() {
 
   // Monta as options dinamicamente a partir dos dados do banco.
   // Assim se uma nova categoria for criada, ela aparece aqui automaticamente.
-  select.innerHTML = '<option value="">Selecione uma categoria...</option>' +
-    data.map(cat =>
-      `<option value="${cat.categoriaprodutoid}">${cat.ds_categoria_produto}</option>`
-    ).join('');
+  select.innerHTML = data.map(cat =>
+    `<option value="${cat.categoriaprodutoid}">${cat.ds_categoria_produto}</option>`
+  ).join('');
 
   // Inicializa o Tom Select — reinicia se já existir
   if (tsCategoria) tsCategoria.destroy();
   tsCategoria = new TomSelect('#categoriaprodutoid', {
-    allowEmptyOption: true,
-    maxOptions: null,
+    placeholder: 'Selecione uma categoria...',
+    maxOptions: 200,
+    items: [],   // impede seleção automática do primeiro item na inicialização
   });
 }
 

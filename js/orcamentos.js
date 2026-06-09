@@ -78,13 +78,15 @@ async function carregarClientes() {
     return;
   }
 
-  select.innerHTML = '<option value="">Selecione um cliente...</option>' +
-    data.map(c => `<option value="${c.clienteid}">${c.nome_cliente}</option>`).join('');
+  select.innerHTML = data.map(c =>
+    `<option value="${c.clienteid}">${c.nome_cliente}</option>`
+  ).join('');
 
   if (tsCliente) tsCliente.destroy();
   tsCliente = new TomSelect('#clienteid', {
-    allowEmptyOption: true,
-    maxOptions: null,
+    placeholder: 'Selecione um cliente...',
+    maxOptions: 200,
+    items: [],   // impede seleção automática do primeiro item na inicialização
   });
 }
 
@@ -106,15 +108,15 @@ async function carregarProdutos() {
   produtosCache = data;
 
   // data-valor: atributo HTML personalizado que guarda o valor no próprio elemento
-  select.innerHTML = '<option value="">Selecione um produto...</option>' +
-    data.map(p =>
-      `<option value="${p.produtoid}" data-valor="${p.vl_venda_produto}">${p.ds_produto}</option>`
-    ).join('');
+  select.innerHTML = data.map(p =>
+    `<option value="${p.produtoid}" data-valor="${p.vl_venda_produto}">${p.ds_produto}</option>`
+  ).join('');
 
   if (tsProduto) tsProduto.destroy();
   tsProduto = new TomSelect('#item-produto', {
-    allowEmptyOption: true,
-    maxOptions: null,
+    placeholder: 'Selecione um produto...',
+    maxOptions: 200,
+    items: [],   // impede seleção automática do primeiro item na inicialização
     onChange: () => preencherValorUnitario(),
   });
 }

@@ -797,50 +797,99 @@ tbody td.td-acoes {
 
 
 /* --- Tom Select — harmoniza o componente com o design do sistema --- */
+
+/* Wrapper ocupa 100% da célula do form-grid, sem padding extra */
+.ts-wrapper {
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+/* Controle principal: visual idêntico aos <input> e <select> do sistema */
 .ts-wrapper.single .ts-control {
+  display: flex;
+  align-items: center;
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-borda);
-  padding: 8px 12px;
+  padding: 9px 36px 9px 12px; /* padding-right reserva espaço para a seta */
   font-family: var(--fonte-base);
   font-size: 14px;
   color: var(--cor-texto);
   background: var(--cor-fundo-card);
   box-shadow: none;
   cursor: pointer;
+  min-height: 40px; /* mesma altura que os inputs (padding 9+9 + line-height ~22px) */
+  line-height: 1.6;
 }
+
 .ts-wrapper.single.input-active .ts-control,
 .ts-wrapper.single.focus .ts-control {
   border-color: var(--cor-borda-foco);
   box-shadow: 0 0 0 3px rgba(58,123,213,0.15);
+  outline: none;
 }
+
+/* Input de digitação interno — sem padding duplicado */
 .ts-wrapper .ts-control input {
   font-family: var(--fonte-base);
   font-size: 14px;
   color: var(--cor-texto);
+  line-height: 1.6;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  flex: 1;
 }
+
+/* Quando nenhum item está selecionado, o input ocupa todo o espaço
+   para que o placeholder fique visível mesmo sem foco */
+.ts-wrapper.single:not(.has-items) .ts-control input {
+  width: 100% !important;
+  opacity: 1 !important;
+}
+
+/* Placeholder — exibido quando nenhum item está selecionado */
+.ts-control .placeholder {
+  color: var(--cor-texto-suave) !important;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Seta do dropdown */
+.ts-wrapper.single .ts-control::after {
+  border-color: var(--cor-texto-suave) transparent transparent;
+  right: 12px;
+  margin-top: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+}
+
+/* Dropdown de opções */
 .ts-dropdown {
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-borda);
-  box-shadow: var(--sombra-card);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
   font-family: var(--fonte-base);
   font-size: 14px;
+  margin-top: 2px;
 }
+
 .ts-dropdown .option {
   padding: 9px 12px;
   color: var(--cor-texto);
 }
+
 .ts-dropdown .option:hover,
 .ts-dropdown .option.active {
   background-color: rgba(58,123,213,0.08);
   color: var(--cor-texto);
 }
+
 .ts-dropdown .option.selected {
   background-color: rgba(58,123,213,0.12);
   font-weight: 500;
 }
-.ts-wrapper.single .ts-control:after {
-  border-color: var(--cor-texto-suave) transparent transparent;
-}
+
 
 
 /* --- Cabeçalhos de tabela ordenáveis ---
