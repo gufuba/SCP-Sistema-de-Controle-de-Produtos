@@ -33,7 +33,7 @@
         <!-- Select de tipo: exibe "Pessoa Física/Jurídica" mas salva 'F'/'J' -->
         <div class="form-grupo">
           <label for="tipo_cliente">Tipo de Cliente *</label>
-          <select id="tipo_cliente">
+          <select id="tipo_cliente" onchange="trocarTipoCliente()">
             <option value="">Selecione...</option>
             <option value="F">Pessoa Física</option>
             <option value="J">Pessoa Jurídica</option>
@@ -42,7 +42,8 @@
 
         <div class="form-grupo">
           <label for="cpf_cnpj_cliente">CPF / CNPJ *</label>
-          <input type="text" id="cpf_cnpj_cliente" placeholder="000.000.000-00">
+          <input type="text" id="cpf_cnpj_cliente" placeholder="000.000.000-00"
+            oninput="mascaraCpfCnpj()" maxlength="18">
         </div>
 
         <div class="form-grupo">

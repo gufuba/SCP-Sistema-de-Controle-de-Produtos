@@ -790,6 +790,53 @@ tbody td.td-acoes {
 }
 
 
+/* --- Tom Select — harmoniza o componente com o design do sistema --- */
+.ts-wrapper.single .ts-control {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda);
+  padding: 8px 12px;
+  font-family: var(--fonte-base);
+  font-size: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-fundo-card);
+  box-shadow: none;
+  cursor: pointer;
+}
+.ts-wrapper.single.input-active .ts-control,
+.ts-wrapper.single.focus .ts-control {
+  border-color: var(--cor-borda-foco);
+  box-shadow: 0 0 0 3px rgba(58,123,213,0.15);
+}
+.ts-wrapper .ts-control input {
+  font-family: var(--fonte-base);
+  font-size: 14px;
+  color: var(--cor-texto);
+}
+.ts-dropdown {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-borda);
+  box-shadow: var(--sombra-card);
+  font-family: var(--fonte-base);
+  font-size: 14px;
+}
+.ts-dropdown .option {
+  padding: 9px 12px;
+  color: var(--cor-texto);
+}
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+  background-color: rgba(58,123,213,0.08);
+  color: var(--cor-texto);
+}
+.ts-dropdown .option.selected {
+  background-color: rgba(58,123,213,0.12);
+  font-weight: 500;
+}
+.ts-wrapper.single .ts-control:after {
+  border-color: var(--cor-texto-suave) transparent transparent;
+}
+
+
 /* --- Cabeçalhos de tabela ordenáveis ---
    Clique ordena; segundo clique inverte a direção. */
 .th-ordenavel {

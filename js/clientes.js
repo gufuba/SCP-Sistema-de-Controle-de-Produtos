@@ -333,6 +333,43 @@ function formatarTipo(tipo) {
 }
 
 
+// -------------------------------------------------------
+// MÁSCARA CPF / CNPJ
+// -------------------------------------------------------
+// Formata o campo enquanto o usuário digita, de acordo com o tipo selecionado.
+// Remove tudo que não é dígito e aplica a máscara correspondente.
+function mascaraCpfCnpj() {
+  const tipo  = document.getElementById('tipo_cliente').value;
+  const campo = document.getElementById('cpf_cnpj_cliente');
+  let v = campo.value.replace(/\D/g, ''); // mantém só números
+
+  if (tipo === 'F') {
+    // CPF: 000.000.000-00
+    v = v.slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  } else if (tipo === 'J') {
+    // CNPJ: 00.000.000/0000-00
+    v = v.slice(0, 14);
+    v = v.replace(/(\d{2})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1/$2');
+    v = v.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+  }
+
+  campo.value = v;
+}
+
+// Chamada ao trocar o tipo — limpa o campo e atualiza o placeholder
+function trocarTipoCliente() {
+  const campo = document.getElementById('cpf_cnpj_cliente');
+  const tipo  = document.getElementById('tipo_cliente').value;
+  campo.value       = '';
+  campo.placeholder = tipo === 'J' ? '00.000.000/0000-00' : '000.000.000-00';
+}
+
+
 // Exibe uma mensagem temporária no canto da tela.
 // tipo: 'sucesso' | 'erro' | 'aviso'
 function mostrarToast(mensagem, tipo = 'sucesso') {

@@ -30,6 +30,8 @@ let orcamentosCache = [];
 
 let sortColuna = null;
 let sortAsc    = true;
+let tsCliente  = null; // Tom Select do campo de cliente
+let tsProduto  = null; // Tom Select do campo de produto (itens)
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -59,6 +61,12 @@ async function carregarClientes() {
 
   select.innerHTML = '<option value="">Selecione um cliente...</option>' +
     data.map(c => `<option value="${c.clienteid}">${c.nome_cliente}</option>`).join('');
+
+  if (tsCliente) tsCliente.destroy();
+  tsCliente = new TomSelect('#clienteid', {
+    allowEmptyOption: true,
+    maxOptions: null,
+  });
 }
 
 async function carregarProdutos() {
@@ -78,11 +86,18 @@ async function carregarProdutos() {
   // Guarda os produtos em cache para usar nos cálculos de valor
   produtosCache = data;
 
+  // data-valor: atributo HTML personalizado que guarda o valor no próprio elemento
   select.innerHTML = '<option value="">Selecione um produto...</option>' +
     data.map(p =>
       `<option value="${p.produtoid}" data-valor="${p.vl_venda_produto}">${p.ds_produto}</option>`
     ).join('');
-    // data-valor: atributo HTML personalizado que guarda o valor no próprio elemento
+
+  if (tsProduto) tsProduto.destroy();
+  tsProduto = new TomSelect('#item-produto', {
+    allowEmptyOption: true,
+    maxOptions: null,
+    onChange: () => preencherValorUnitario(),
+  });
 }
 
 function preencherDatas() {
@@ -209,7 +224,7 @@ function atualizarTotalGeral() {
 }
 
 function limparCamposItem() {
-  document.getElementById('item-produto').value     = '';
+  tsProduto.setValue('');
   document.getElementById('item-descricao').value   = '';
   document.getElementById('item-quantidade').value  = '1';
   document.getElementById('item-vl-unitario').value = '';
@@ -482,7 +497,7 @@ async function editarOrcamento(id) {
 
   // Preenche o cabeçalho
   document.getElementById('orcamentoid').value           = orc.orcamentoid;
-  document.getElementById('clienteid').value             = orc.clienteid;
+  tsCliente.setValue(String(orc.clienteid));
   document.getElementById('dt_orcamento').value          = orc.dt_orcamento?.split('T')[0] || '';
   document.getElementById('dt_validade_orcamento').value = orc.dt_validade_orcamento?.split('T')[0] || '';
 
@@ -546,7 +561,7 @@ async function confirmarExclusao() {
 // -------------------------------------------------------
 function limparFormulario() {
   document.getElementById('orcamentoid').value         = '';
-  document.getElementById('clienteid').value           = '';
+  tsCliente.setValue('');
   document.getElementById('vl_total_orcamento').value  = 'R$ 0,00';
   document.getElementById('total-geral-display').textContent = 'R$ 0,00';
 

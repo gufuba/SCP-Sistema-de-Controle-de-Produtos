@@ -15,8 +15,9 @@ let produtoExcluindoId = null;
 // A busca por texto filtra sobre este cache — sem nova chamada ao banco.
 let produtosCache      = [];
 
-let sortColuna = null;
-let sortAsc    = true;
+let sortColuna  = null;
+let sortAsc     = true;
+let tsCategoria = null; // instância do Tom Select no campo de categoria
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,6 +50,13 @@ async function carregarCategorias() {
     data.map(cat =>
       `<option value="${cat.categoriaprodutoid}">${cat.ds_categoria_produto}</option>`
     ).join('');
+
+  // Inicializa o Tom Select — reinicia se já existir
+  if (tsCategoria) tsCategoria.destroy();
+  tsCategoria = new TomSelect('#categoriaprodutoid', {
+    allowEmptyOption: true,
+    maxOptions: null,
+  });
 }
 
 
@@ -290,7 +298,7 @@ async function editarProduto(id) {
   }
 
   document.getElementById('produtoid').value           = data.produtoid;
-  document.getElementById('categoriaprodutoid').value  = data.categoriaprodutoid;
+  tsCategoria.setValue(String(data.categoriaprodutoid));
   document.getElementById('ds_produto').value          = data.ds_produto;
   document.getElementById('vl_venda_produto').value    = data.vl_venda_produto;
   // Formata a data para YYYY-MM-DD que o input type="date" aceita
@@ -343,7 +351,7 @@ async function confirmarExclusao() {
 // -------------------------------------------------------
 function limparFormulario() {
   document.getElementById('produtoid').value          = '';
-  document.getElementById('categoriaprodutoid').value = '';
+  tsCategoria.setValue('');
   document.getElementById('ds_produto').value         = '';
   document.getElementById('vl_venda_produto').value   = '';
   document.getElementById('status_produto').value     = '';
