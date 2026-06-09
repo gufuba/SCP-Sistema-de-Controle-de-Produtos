@@ -536,7 +536,17 @@ async function confirmarExclusao() {
   if (!orcamentoExcluindoId) return;
 
   // Exclui os itens primeiro (FK), depois o cabeçalho
-  await dbClient.from('orcamento_item').delete().eq('orcamentoid', orcamentoExcluindoId);
+  const { error: errItens } = await dbClient
+    .from('orcamento_item')
+    .delete()
+    .eq('orcamentoid', orcamentoExcluindoId);
+
+  if (errItens) {
+    fecharModal();
+    mostrarToast('Erro ao excluir itens do orçamento.', 'erro');
+    console.error('Erro itens:', errItens.message);
+    return;
+  }
 
   const { error } = await dbClient
     .from('orcamento')
