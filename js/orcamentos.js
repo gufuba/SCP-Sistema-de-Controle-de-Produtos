@@ -452,11 +452,114 @@ function renderizarOrcamentos(lista, termo = '') {
       <td>${formatarData(orc.dt_validade_orcamento)}</td>
       <td><strong>${formatarMoeda(orc.vl_total_orcamento)}</strong></td>
       <td class="td-acoes">
+        <!--
+          Imprimir vem primeiro (ação de saída, a mais frequente) e separado
+          do par Editar/Excluir, que mantém o mesmo padrão das outras telas.
+          Excluir fica por último — ação destrutiva na posição terminal.
+        -->
+        <button class="btn btn-tabela-imprimir btn-sm" onclick="imprimirOrcamento(${orc.orcamentoid})">Imprimir</button>
         <button class="btn btn-tabela-editar btn-sm" onclick="editarOrcamento(${orc.orcamentoid})">Editar</button>
         <button class="btn btn-tabela-excluir btn-sm" onclick="abrirModalExclusao(${orc.orcamentoid})">Excluir</button>
       </td>
     </tr>
   `).join('');
+}
+
+
+// -------------------------------------------------------
+// IMPRIMIR — monta o documento do orçamento e abre a impressão
+// -------------------------------------------------------
+// Como funciona:
+//   1. Busca o orçamento completo no banco (cliente + itens)
+//   2. Monta o HTML do documento dentro da div #area-impressao
+//      (que fica invisível na tela — só aparece na impressão)
+//   3. window.print() abre o diálogo do navegador, onde o usuário
+//      pode imprimir em papel OU salvar como PDF
+// O CSS @media print (style.css) esconde o sistema inteiro e
+// mostra apenas o documento durante a impressão.
+async function imprimirOrcamento(id) {
+  // Busca cabeçalho (com dados completos do cliente) e itens em paralelo
+  const [resOrc, resItens] = await Promise.all([
+    dbClient
+      .from('orcamento')
+      .select('*, cliente ( nome_cliente, cpf_cnpj_cliente, tipo_cliente )')
+      .eq('orcamentoid', id)
+      .single(),
+    dbClient
+      .from('orcamento_item')
+      .select('*')
+      .eq('orcamentoid', id)
+      .order('orcamentoitemid', { ascending: true })
+  ]);
+
+  if (resOrc.error || !resOrc.data) {
+    mostrarToast('Erro ao carregar orçamento para impressão.', 'erro');
+    console.error('Erro:', resOrc.error?.message);
+    return;
+  }
+
+  const orc   = resOrc.data;
+  const itens = resItens.data || [];
+  const tipoCliente = orc.cliente?.tipo_cliente === 'J' ? 'Pessoa Jurídica' : 'Pessoa Física';
+
+  // Monta o documento de impressão
+  document.getElementById('area-impressao').innerHTML = `
+    <div class="imp-cabecalho">
+      <div class="imp-logo">
+        <span>SCP</span>
+        <small>Sistema de Controle de Produtos</small>
+      </div>
+      <div class="imp-doc">
+        <h2>ORÇAMENTO Nº ${orc.orcamentoid}</h2>
+        <div>Emissão: ${formatarData(orc.dt_orcamento)}</div>
+        <div>Válido até: ${formatarData(orc.dt_validade_orcamento)}</div>
+      </div>
+    </div>
+
+    <div class="imp-secao-titulo">Cliente</div>
+    <div class="imp-cliente">
+      <strong>${orc.cliente?.nome_cliente || '—'}</strong><br>
+      ${tipoCliente} — CPF/CNPJ: ${orc.cliente?.cpf_cnpj_cliente || '—'}
+    </div>
+
+    <div class="imp-secao-titulo">Itens do Orçamento</div>
+    <table class="imp-tabela">
+      <thead>
+        <tr>
+          <th>Cód.</th>
+          <th>Descrição</th>
+          <th class="num">Qtd</th>
+          <th class="num">Vlr Unitário</th>
+          <th class="num">Vlr Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itens.map(item => `
+          <tr>
+            <td>${item.produtoid}</td>
+            <td>${item.produtodesc}</td>
+            <td class="num">${item.qt_produto}</td>
+            <td class="num">${formatarMoeda(item.vl_unitario)}</td>
+            <td class="num">${formatarMoeda(item.vl_total)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+
+    <div class="imp-total">
+      <div>
+        <span>Total Geral</span>
+        <strong>${formatarMoeda(orc.vl_total_orcamento)}</strong>
+      </div>
+    </div>
+
+    <div class="imp-rodape">
+      Este orçamento é válido até ${formatarData(orc.dt_validade_orcamento)}.
+      Documento gerado pelo sistema SCP em ${new Date().toLocaleDateString('pt-BR')}.
+    </div>
+  `;
+
+  window.print();
 }
 
 

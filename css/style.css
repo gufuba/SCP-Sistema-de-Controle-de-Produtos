@@ -427,6 +427,22 @@ ul {
   border-color: rgba(231,76,60,0.42);
 }
 
+.btn-tabela-imprimir {
+  background-color: rgba(58,123,213,0.07);
+  color: var(--cor-primaria-hover);
+  border: 1px solid rgba(58,123,213,0.25);
+}
+.btn-tabela-imprimir:hover {
+  background-color: rgba(58,123,213,0.15);
+  border-color: rgba(58,123,213,0.45);
+}
+
+/* Respiro extra entre Imprimir (ação de saída) e o par Editar/Excluir
+   (ações de gerenciamento) — reforça que são grupos diferentes */
+.td-acoes .btn-tabela-imprimir {
+  margin-right: 20px;
+}
+
 /* --- Tabelas --- */
 .tabela-container {
   overflow-x: auto; /* scroll horizontal em telas pequenas */
@@ -1002,6 +1018,170 @@ tbody td.td-acoes {
 /* Corpo com padding equivalente ao .card */
 .modal-form-body {
   padding: 24px;
+}
+
+
+/* ============================================================
+   IMPRESSÃO DO ORÇAMENTO
+   ============================================================
+   A div #area-impressao fica oculta na tela. Quando o usuário
+   clica em "Imprimir", o JS preenche essa div e chama
+   window.print() — aí o @media print abaixo esconde o sistema
+   inteiro e mostra apenas o documento do orçamento.
+   ============================================================ */
+
+/* Na tela: documento invisível */
+#area-impressao {
+  display: none;
+}
+
+@media print {
+  /* O body usa display:grid para o layout [sidebar | conteúdo];
+     na impressão voltamos para block para o documento fluir normal */
+  body.layout {
+    display: block !important;
+    background: white;
+  }
+
+  /* Esconde tudo que não é o documento (sidebar, conteúdo, modais, toast) */
+  body > *:not(#area-impressao) {
+    display: none !important;
+  }
+
+  #area-impressao {
+    display: block !important;
+  }
+
+  /* Margem da folha */
+  @page {
+    margin: 14mm;
+  }
+}
+
+/* --- Estilos do documento impresso --- */
+/* Definidos fora do @media print porque a div já é invisível na tela.
+   Usamos cores fixas (não variáveis) pois impressoras ignoram fundos
+   e o documento deve funcionar bem em preto e branco. */
+#area-impressao {
+  font-family: var(--fonte-base);
+  color: #1a1a1a;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Cabeçalho: logo à esquerda, número e datas à direita */
+.imp-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #1E2A35;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+
+.imp-logo span {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1E2A35;
+  letter-spacing: 1px;
+}
+
+.imp-logo small {
+  display: block;
+  font-size: 11px;
+  color: #666;
+}
+
+.imp-doc {
+  text-align: right;
+}
+
+.imp-doc h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.imp-doc div {
+  font-size: 12px;
+  color: #444;
+}
+
+/* Título de seção (Cliente, Itens do Orçamento) */
+.imp-secao-titulo {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #666;
+  margin: 18px 0 6px;
+}
+
+/* Bloco com os dados do cliente */
+.imp-cliente {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+/* Tabela de itens */
+.imp-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+.imp-tabela th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #555;
+  border-bottom: 2px solid #1E2A35;
+  padding: 6px 8px;
+}
+
+.imp-tabela td {
+  padding: 7px 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Colunas numéricas alinhadas à direita (qtd e valores) */
+.imp-tabela .num {
+  text-align: right;
+}
+
+/* Total geral destacado no canto direito */
+.imp-total {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.imp-total div {
+  text-align: right;
+}
+
+.imp-total span {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #666;
+}
+
+.imp-total strong {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Rodapé com validade e data de geração */
+.imp-rodape {
+  margin-top: 32px;
+  padding-top: 12px;
+  border-top: 1px solid #ccc;
+  font-size: 11px;
+  color: #666;
 }
 
 
