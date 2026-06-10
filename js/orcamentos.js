@@ -28,14 +28,13 @@ let produtosCache   = [];
 // Cache da listagem de orçamentos — usado pelo filtro de busca
 let orcamentosCache = [];
 
-let sortColuna = null;
-let sortAsc    = true;
 let tsCliente  = null; // Tom Select do campo de cliente
 let tsProduto  = null; // Tom Select do campo de produto (itens)
 
 
 document.addEventListener('DOMContentLoaded', () => {
   renderizarSidebar('orcamentos');
+  registrarFiltro(filtrarOrcamentos); // informa ao utils.js qual filtro usar nesta página
   carregarClientes();
   carregarProdutos();
   preencherDatas();
@@ -424,51 +423,13 @@ function filtrarOrcamentos() {
     ? `${lista.length} de ${orcamentosCache.length} resultado${lista.length !== 1 ? 's' : ''}`
     : '';
 
-  if (sortColuna) {
-    lista = [...lista].sort((a, b) => {
-      // "cliente" é um objeto aninhado — extrai o nome para comparar
-      let va = sortColuna === 'cliente' ? (a.cliente?.nome_cliente || '') : a[sortColuna];
-      let vb = sortColuna === 'cliente' ? (b.cliente?.nome_cliente || '') : b[sortColuna];
-      if (typeof va === 'string') va = va.toLowerCase();
-      if (typeof vb === 'string') vb = vb.toLowerCase();
-      if (va < vb) return sortAsc ? -1 : 1;
-      if (va > vb) return sortAsc ? 1 : -1;
-      return 0;
-    });
-  }
+  // Aplica a ordenação ativa (utils.js). A coluna "cliente" é um objeto
+  // aninhado, então passamos um extrator que devolve o nome do cliente.
+  lista = ordenarLista(lista, (item, coluna) =>
+    coluna === 'cliente' ? (item.cliente?.nome_cliente || '') : item[coluna]
+  );
 
   renderizarOrcamentos(lista, termo);
-}
-
-// Limpa o campo de busca e restaura a lista completa
-function limparBusca(pagina) {
-  document.getElementById(`busca-${pagina}`).value = '';
-  filtrarOrcamentos();
-}
-
-
-// -------------------------------------------------------
-// ORDENAR
-// -------------------------------------------------------
-function ordenarPor(coluna) {
-  if (sortColuna === coluna) {
-    sortAsc = !sortAsc;
-  } else {
-    sortColuna = coluna;
-    sortAsc = true;
-  }
-
-  document.querySelectorAll('.th-ordenavel').forEach(th => {
-    th.classList.remove('ativo');
-    th.querySelector('.sort-icon').textContent = '↕';
-  });
-  const thAtivo = document.querySelector(`[data-coluna="${coluna}"]`);
-  if (thAtivo) {
-    thAtivo.classList.add('ativo');
-    thAtivo.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
-  }
-
-  filtrarOrcamentos();
 }
 
 
@@ -604,30 +565,4 @@ function limparFormulario() {
   orcamentoEditandoId = null;
   document.getElementById('form-titulo').textContent = 'Novo Orçamento';
   fecharFormulario();
-}
-
-
-// -------------------------------------------------------
-// UTILITÁRIOS
-// -------------------------------------------------------
-
-// Formata um número para moeda brasileira: 1500 → R$ 1.500,00
-function formatarMoeda(valor) {
-  if (valor === null || valor === undefined) return '—';
-  return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-// Formata uma data ISO (2024-03-15T...) para DD/MM/AAAA
-function formatarData(dataISO) {
-  if (!dataISO) return '—';
-  return new Date(dataISO).toLocaleDateString('pt-BR');
-}
-
-// Exibe uma mensagem temporária no canto da tela.
-// tipo: 'sucesso' | 'erro' | 'aviso'
-function mostrarToast(mensagem, tipo = 'sucesso') {
-  const toast = document.getElementById('toast');
-  toast.textContent = mensagem;
-  toast.className = `visivel ${tipo}`;
-  setTimeout(() => { toast.className = ''; }, 3000);
 }

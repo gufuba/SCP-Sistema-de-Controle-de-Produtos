@@ -105,24 +105,3 @@ async function carregarUltimosOrcamentos() {
     </tr>
   `).join('');
 }
-
-
-// -------------------------------------------------------
-// Funções utilitárias de formatação
-// -------------------------------------------------------
-
-// Formata uma data ISO (2024-03-15T...) para DD/MM/AAAA
-function formatarData(dataISO) {
-  if (!dataISO) return '—';
-  const d = new Date(dataISO);
-  return d.toLocaleDateString('pt-BR');
-}
-
-// Formata um número para moeda brasileira: 1500 → R$ 1.500,00
-function formatarMoeda(valor) {
-  if (valor === null || valor === undefined) return '—';
-  return Number(valor).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  });
-}

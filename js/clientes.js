@@ -22,16 +22,14 @@ let clienteExcluindoId = null;
 // Guardamos aqui para poder filtrar sem precisar buscar no banco a cada digitação.
 let clientesCache      = [];
 
-let sortColuna = null; // coluna atualmente ordenada (null = sem ordenação ativa)
-let sortAsc    = true; // true = crescente, false = decrescente
-
 
 // -------------------------------------------------------
 // Inicialização
 // -------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  renderizarSidebar('clientes'); // marca "Clientes" como ativo na sidebar
-  carregarClientes();            // busca e exibe a lista
+  renderizarSidebar('clientes');     // marca "Clientes" como ativo na sidebar
+  registrarFiltro(filtrarClientes);  // informa ao utils.js qual filtro usar nesta página
+  carregarClientes();                // busca e exibe a lista
 });
 
 
@@ -105,51 +103,10 @@ function filtrarClientes() {
     ? `${lista.length} de ${clientesCache.length} resultado${lista.length !== 1 ? 's' : ''}`
     : '';
 
-  // Ordena a lista filtrada sem modificar o cache original
-  if (sortColuna) {
-    lista = [...lista].sort((a, b) => {
-      const va = typeof a[sortColuna] === 'string' ? a[sortColuna].toLowerCase() : a[sortColuna];
-      const vb = typeof b[sortColuna] === 'string' ? b[sortColuna].toLowerCase() : b[sortColuna];
-      if (va < vb) return sortAsc ? -1 : 1;
-      if (va > vb) return sortAsc ? 1 : -1;
-      return 0;
-    });
-  }
+  // Aplica a ordenação ativa (função compartilhada do utils.js)
+  lista = ordenarLista(lista);
 
   renderizarClientes(lista, termo);
-}
-
-// Limpa o campo de busca e restaura a lista completa.
-// O parâmetro "pagina" é passado pelo onclick no HTML — mesma função reutilizada em todas as páginas.
-function limparBusca(pagina) {
-  document.getElementById(`busca-${pagina}`).value = '';
-  filtrarClientes();
-}
-
-
-// -------------------------------------------------------
-// ORDENAR — clique no cabeçalho ordena; segundo clique inverte
-// -------------------------------------------------------
-function ordenarPor(coluna) {
-  if (sortColuna === coluna) {
-    sortAsc = !sortAsc;
-  } else {
-    sortColuna = coluna;
-    sortAsc = true;
-  }
-
-  // Atualiza os ícones visuais nos cabeçalhos
-  document.querySelectorAll('.th-ordenavel').forEach(th => {
-    th.classList.remove('ativo');
-    th.querySelector('.sort-icon').textContent = '↕';
-  });
-  const thAtivo = document.querySelector(`[data-coluna="${coluna}"]`);
-  if (thAtivo) {
-    thAtivo.classList.add('ativo');
-    thAtivo.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
-  }
-
-  filtrarClientes();
 }
 
 
@@ -387,18 +344,4 @@ function trocarTipoCliente() {
   const tipo  = document.getElementById('tipo_cliente').value;
   campo.value       = '';
   campo.placeholder = tipo === 'J' ? '00.000.000/0000-00' : '000.000.000-00';
-}
-
-
-// Exibe uma mensagem temporária no canto da tela.
-// tipo: 'sucesso' | 'erro' | 'aviso'
-function mostrarToast(mensagem, tipo = 'sucesso') {
-  const toast = document.getElementById('toast');
-  toast.textContent = mensagem;
-  toast.className = `visivel ${tipo}`; // aplica as classes de estilo e visibilidade
-
-  // Remove o toast após 3 segundos
-  setTimeout(() => {
-    toast.className = ''; // remove as classes, tornando invisível
-  }, 3000);
 }

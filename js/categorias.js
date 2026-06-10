@@ -12,12 +12,10 @@ let categoriaExcluindoId = null;
 // Guardamos aqui para poder filtrar sem precisar buscar no banco a cada digitação.
 let categoriasCache      = [];
 
-let sortColuna = null;
-let sortAsc    = true;
-
 
 document.addEventListener('DOMContentLoaded', () => {
   renderizarSidebar('categorias');
+  registrarFiltro(filtrarCategorias); // informa ao utils.js qual filtro usar nesta página
   carregarCategorias();
 
   // Fecha o modal ao clicar no fundo escurecido (fora do painel branco)
@@ -85,48 +83,10 @@ function filtrarCategorias() {
     ? `${lista.length} de ${categoriasCache.length} resultado${lista.length !== 1 ? 's' : ''}`
     : '';
 
-  if (sortColuna) {
-    lista = [...lista].sort((a, b) => {
-      const va = typeof a[sortColuna] === 'string' ? a[sortColuna].toLowerCase() : a[sortColuna];
-      const vb = typeof b[sortColuna] === 'string' ? b[sortColuna].toLowerCase() : b[sortColuna];
-      if (va < vb) return sortAsc ? -1 : 1;
-      if (va > vb) return sortAsc ? 1 : -1;
-      return 0;
-    });
-  }
+  // Aplica a ordenação ativa (função compartilhada do utils.js)
+  lista = ordenarLista(lista);
 
   renderizarCategorias(lista, termo);
-}
-
-// Limpa o campo de busca e restaura a lista completa
-function limparBusca(pagina) {
-  document.getElementById(`busca-${pagina}`).value = '';
-  filtrarCategorias();
-}
-
-
-// -------------------------------------------------------
-// ORDENAR
-// -------------------------------------------------------
-function ordenarPor(coluna) {
-  if (sortColuna === coluna) {
-    sortAsc = !sortAsc;
-  } else {
-    sortColuna = coluna;
-    sortAsc = true;
-  }
-
-  document.querySelectorAll('.th-ordenavel').forEach(th => {
-    th.classList.remove('ativo');
-    th.querySelector('.sort-icon').textContent = '↕';
-  });
-  const thAtivo = document.querySelector(`[data-coluna="${coluna}"]`);
-  if (thAtivo) {
-    thAtivo.classList.add('ativo');
-    thAtivo.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
-  }
-
-  filtrarCategorias();
 }
 
 
@@ -275,18 +235,4 @@ function limparFormulario() {
   categoriaEditandoId = null;
   document.getElementById('form-titulo').textContent = 'Nova Categoria';
   fecharFormulario();
-}
-
-
-// -------------------------------------------------------
-// UTILITÁRIOS
-// -------------------------------------------------------
-
-// Exibe uma mensagem temporária no canto da tela.
-// tipo: 'sucesso' | 'erro' | 'aviso'
-function mostrarToast(mensagem, tipo = 'sucesso') {
-  const toast = document.getElementById('toast');
-  toast.textContent = mensagem;
-  toast.className = `visivel ${tipo}`;
-  setTimeout(() => { toast.className = ''; }, 3000);
 }

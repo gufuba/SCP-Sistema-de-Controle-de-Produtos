@@ -15,13 +15,12 @@ let produtoExcluindoId = null;
 // A busca por texto filtra sobre este cache — sem nova chamada ao banco.
 let produtosCache      = [];
 
-let sortColuna  = null;
-let sortAsc     = true;
 let tsCategoria = null; // instância do Tom Select no campo de categoria
 
 
 document.addEventListener('DOMContentLoaded', () => {
   renderizarSidebar('produtos');
+  registrarFiltro(filtrarProdutos); // informa ao utils.js qual filtro usar nesta página
   carregarCategorias();  // preenche o select de categorias
   preencherDataHoje();   // coloca a data atual no campo de data
   carregarProdutos();    // lista os produtos
@@ -159,48 +158,10 @@ function filtrarProdutos() {
     ? `${lista.length} de ${produtosCache.length} resultado${lista.length !== 1 ? 's' : ''}`
     : '';
 
-  if (sortColuna) {
-    lista = [...lista].sort((a, b) => {
-      const va = typeof a[sortColuna] === 'string' ? a[sortColuna].toLowerCase() : a[sortColuna];
-      const vb = typeof b[sortColuna] === 'string' ? b[sortColuna].toLowerCase() : b[sortColuna];
-      if (va < vb) return sortAsc ? -1 : 1;
-      if (va > vb) return sortAsc ? 1 : -1;
-      return 0;
-    });
-  }
+  // Aplica a ordenação ativa (função compartilhada do utils.js)
+  lista = ordenarLista(lista);
 
   renderizarProdutos(lista, termo);
-}
-
-// Limpa o campo de busca e restaura a lista completa
-function limparBusca(pagina) {
-  document.getElementById(`busca-${pagina}`).value = '';
-  filtrarProdutos();
-}
-
-
-// -------------------------------------------------------
-// ORDENAR
-// -------------------------------------------------------
-function ordenarPor(coluna) {
-  if (sortColuna === coluna) {
-    sortAsc = !sortAsc;
-  } else {
-    sortColuna = coluna;
-    sortAsc = true;
-  }
-
-  document.querySelectorAll('.th-ordenavel').forEach(th => {
-    th.classList.remove('ativo');
-    th.querySelector('.sort-icon').textContent = '↕';
-  });
-  const thAtivo = document.querySelector(`[data-coluna="${coluna}"]`);
-  if (thAtivo) {
-    thAtivo.classList.add('ativo');
-    thAtivo.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
-  }
-
-  filtrarProdutos();
 }
 
 
@@ -379,24 +340,4 @@ function limparFormulario() {
   produtoEditandoId = null;
   document.getElementById('form-titulo').textContent = 'Novo Produto';
   fecharFormulario();
-}
-
-
-// -------------------------------------------------------
-// UTILITÁRIOS
-// -------------------------------------------------------
-
-// Formata um número para moeda brasileira: 1500 → R$ 1.500,00
-function formatarMoeda(valor) {
-  if (valor === null || valor === undefined) return '—';
-  return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-// Exibe uma mensagem temporária no canto da tela.
-// tipo: 'sucesso' | 'erro' | 'aviso'
-function mostrarToast(mensagem, tipo = 'sucesso') {
-  const toast = document.getElementById('toast');
-  toast.textContent = mensagem;
-  toast.className = `visivel ${tipo}`;
-  setTimeout(() => { toast.className = ''; }, 3000);
 }
