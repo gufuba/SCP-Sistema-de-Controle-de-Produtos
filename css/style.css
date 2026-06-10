@@ -575,6 +575,28 @@ tbody td.td-acoes {
 .dash-card.amarelo::before { background: var(--cor-aviso); }
 .dash-card.roxo::before  { background: #8E44AD; }
 
+/* --- Gráficos do dashboard --- */
+.graficos-grid {
+  display: grid;
+  /* duas colunas em telas largas; empilha quando falta espaço */
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* O card dentro do grid não precisa da margem própria —
+   o gap do grid já cuida do espaçamento */
+.graficos-grid .card {
+  margin-bottom: 0;
+}
+
+/* O Chart.js preenche o container — a altura fixa evita que o
+   gráfico cresça sem limite (comportamento padrão do canvas responsivo) */
+.grafico-container {
+  position: relative;
+  height: 280px;
+}
+
 /* --- Toast de notificação --- */
 /* Mensagem que aparece no canto da tela e some sozinha */
 #toast {

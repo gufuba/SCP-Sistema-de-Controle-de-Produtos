@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Renderiza a sidebar marcando "home" como página ativa
   renderizarSidebar('home');
 
+  // Gráficos usam a mesma fonte do resto do sistema
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+
   // Carrega todos os dados do dashboard
   carregarDashboard();
 });
@@ -34,8 +37,10 @@ async function carregarDashboard() {
   document.getElementById('total-categorias').textContent  = categorias;
   document.getElementById('total-orcamentos').textContent  = orcamentos;
 
-  // Carrega os últimos orçamentos
+  // Carrega os últimos orçamentos e os gráficos
   carregarUltimosOrcamentos();
+  carregarGraficoMeses();
+  carregarGraficoProdutos();
 }
 
 
@@ -67,6 +72,150 @@ async function contarRegistrosFiltrados(tabela, coluna, valor) {
     return '!';
   }
   return count ?? 0;
+}
+
+
+// -------------------------------------------------------
+// GRÁFICOS — Chart.js
+// -------------------------------------------------------
+// Os dados são buscados no banco e agrupados aqui no JS.
+// Como os gráficos consultam o banco a cada carregamento da
+// página, eles se atualizam sozinhos conforme novos orçamentos
+// são criados.
+
+// Gráfico 1 — Valor total orçado por mês (últimos 6 meses)
+async function carregarGraficoMeses() {
+  const { data, error } = await dbClient
+    .from('orcamento')
+    .select('dt_orcamento, vl_total_orcamento');
+
+  if (error || !data) {
+    console.error('Erro ao carregar dados do gráfico:', error?.message);
+    return;
+  }
+
+  // 1. Monta o "esqueleto" dos últimos 6 meses, todos zerados.
+  //    Sem isso, meses sem orçamento sumiriam do gráfico e a
+  //    linha do tempo ficaria enganosa (pulando meses).
+  const meses = [];
+  const hoje = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    meses.push({
+      // chave no formato "2026-06" — igual ao início de dt_orcamento
+      chave: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      // rótulo exibido no eixo: "jun/26"
+      rotulo: d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
+      total: 0
+    });
+  }
+
+  // 2. Soma cada orçamento no mês correspondente.
+  //    slice(0,7) pega "2026-06" de "2026-06-10" — comparar como
+  //    texto evita problemas de fuso horário do new Date().
+  data.forEach(orc => {
+    const chave = (orc.dt_orcamento || '').slice(0, 7);
+    const mes = meses.find(m => m.chave === chave);
+    if (mes) mes.total += Number(orc.vl_total_orcamento) || 0;
+  });
+
+  // 3. Desenha o gráfico de barras
+  new Chart(document.getElementById('grafico-meses'), {
+    type: 'bar',
+    data: {
+      labels: meses.map(m => m.rotulo),
+      datasets: [{
+        data: meses.map(m => m.total),
+        backgroundColor: 'rgba(58,123,213,0.75)', // --cor-primaria com transparência
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false, // preenche a altura do .grafico-container
+      plugins: {
+        legend: { display: false }, // um dataset só — legenda é redundante
+        tooltip: {
+          callbacks: {
+            // mostra o valor formatado em reais ao passar o mouse
+            label: ctx => formatarMoeda(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            // eixo compacto: 2500 vira "R$ 2,5 mil"
+            callback: valor => Intl.NumberFormat('pt-BR', {
+              style: 'currency', currency: 'BRL', notation: 'compact'
+            }).format(valor)
+          }
+        }
+      }
+    }
+  });
+}
+
+
+// Gráfico 2 — Top 5 produtos com maior valor total em orçamentos
+async function carregarGraficoProdutos() {
+  const { data, error } = await dbClient
+    .from('orcamento_item')
+    .select('produtodesc, vl_total');
+
+  if (error || !data) {
+    console.error('Erro ao carregar dados do gráfico:', error?.message);
+    return;
+  }
+
+  // Agrupa por descrição do produto somando os valores.
+  // O objeto "somas" funciona como um mapa: { "Notebook": 5000, ... }
+  const somas = {};
+  data.forEach(item => {
+    somas[item.produtodesc] = (somas[item.produtodesc] || 0) + (Number(item.vl_total) || 0);
+  });
+
+  // Object.entries transforma o mapa em pares [nome, total],
+  // que ordenamos do maior para o menor e cortamos no top 5
+  const top5 = Object.entries(somas)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  new Chart(document.getElementById('grafico-produtos'), {
+    type: 'bar',
+    data: {
+      labels: top5.map(p => p[0]),
+      datasets: [{
+        data: top5.map(p => p[1]),
+        backgroundColor: 'rgba(39,174,96,0.75)', // --cor-sucesso com transparência
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      indexAxis: 'y', // barras horizontais — nomes de produto leem melhor assim
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => formatarMoeda(ctx.parsed.x)
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            callback: valor => Intl.NumberFormat('pt-BR', {
+              style: 'currency', currency: 'BRL', notation: 'compact'
+            }).format(valor)
+          }
+        }
+      }
+    }
+  });
 }
 
 

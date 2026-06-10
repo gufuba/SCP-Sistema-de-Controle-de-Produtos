@@ -62,6 +62,29 @@
 
         </div>
 
+        <!--
+          Gráficos — desenhados pelo Chart.js (biblioteca via CDN).
+          O <canvas> é um elemento de desenho; o JS busca os dados
+          no banco, agrupa e pinta o gráfico dentro dele.
+        -->
+        <div class="graficos-grid">
+
+            <div class="card">
+                <div class="card-titulo">Valor Orçado por Mês</div>
+                <div class="grafico-container">
+                    <canvas id="grafico-meses"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-titulo">Top 5 Produtos Mais Orçados</div>
+                <div class="grafico-container">
+                    <canvas id="grafico-produtos"></canvas>
+                </div>
+            </div>
+
+        </div>
+
         <!-- Últimos orçamentos -->
         <div class="card">
             <div class="card-titulo">Últimos Orçamentos</div>
@@ -88,6 +111,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/utils.js"></script>
