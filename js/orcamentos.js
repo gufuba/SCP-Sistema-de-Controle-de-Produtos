@@ -444,12 +444,29 @@ function renderizarOrcamentos(lista, termo = '') {
     return;
   }
 
-  tbody.innerHTML = lista.map(orc => `
+  // Data de hoje no formato YYYY-MM-DD, montada com os métodos locais
+  // (getFullYear etc.) — toISOString() usaria UTC e poderia "virar o dia"
+  // mais cedo ou mais tarde que o horário do Brasil.
+  const agora = new Date();
+  const hoje = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
+
+  tbody.innerHTML = lista.map(orc => {
+    // Vencido = validade estritamente anterior a hoje.
+    // Comparação de texto funciona porque YYYY-MM-DD ordena igual a data.
+    // Se vence hoje, ainda é válido.
+    const vencido = orc.dt_validade_orcamento &&
+                    orc.dt_validade_orcamento.slice(0, 10) < hoje;
+
+    return `
     <tr>
       <td><span style="font-family:var(--fonte-mono);font-size:12px">#${orc.orcamentoid}</span></td>
       <td>${orc.cliente?.nome_cliente || '—'}</td>
       <td>${formatarData(orc.dt_orcamento)}</td>
-      <td>${formatarData(orc.dt_validade_orcamento)}</td>
+      <td>
+        ${vencido
+          ? `<span class="data-vencida">${formatarData(orc.dt_validade_orcamento)}</span><span class="badge-vencido">Vencido</span>`
+          : formatarData(orc.dt_validade_orcamento)}
+      </td>
       <td><strong>${formatarMoeda(orc.vl_total_orcamento)}</strong></td>
       <td class="td-acoes">
         <!--
@@ -462,7 +479,8 @@ function renderizarOrcamentos(lista, termo = '') {
         <button class="btn btn-tabela-excluir btn-sm" onclick="abrirModalExclusao(${orc.orcamentoid})">Excluir</button>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 

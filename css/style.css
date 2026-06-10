@@ -508,6 +508,26 @@ tbody td.td-acoes {
   color: var(--cor-texto-suave);
 }
 
+/* --- Orçamento vencido --- */
+/* Destaca apenas a exceção: orçamentos válidos ficam com a data
+   normal; vencidos ganham cor + etiqueta de texto (cor sozinha
+   não é suficiente para quem tem daltonismo) */
+.data-vencida {
+  color: var(--cor-perigo);
+  font-weight: 500;
+}
+
+.badge-vencido {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 600;
+  background-color: rgba(231,76,60,0.1);
+  color: var(--cor-perigo);
+}
+
 /* Divisor de seção dentro de um card — usado em orçamentos para separar
    o cabeçalho dos itens sem precisar de dois cards distintos */
 .card-secao {
