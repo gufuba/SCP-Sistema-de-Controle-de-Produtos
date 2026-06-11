@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------------------------------------
 function abrirFormulario() {
   document.getElementById('modal-formulario').classList.add('visivel');
+  // Tira a "foto" dos campos (utils.js) — usada pelo cancelarFormulario
+  // para detectar alterações não salvas antes de fechar
+  marcarFormularioAberto();
 }
 
 function fecharFormulario() {
@@ -41,7 +44,7 @@ function fecharFormulario() {
 // Fecha o modal ao clicar no fundo escurecido (fora do painel branco)
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modal-formulario').addEventListener('click', function (e) {
-    if (e.target === this) limparFormulario();
+    if (e.target === this) cancelarFormulario();
   });
 });
 

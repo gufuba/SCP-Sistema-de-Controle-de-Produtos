@@ -82,6 +82,89 @@ function limparBusca(pagina) {
 
 
 // -------------------------------------------------------
+// CONFIRMAÇÃO DE SAÍDA DO FORMULÁRIO (modais)
+// -------------------------------------------------------
+// Evita perder dados digitados ao fechar o modal sem querer.
+// Funcionamento:
+//   1. Quando o modal abre, marcarFormularioAberto() tira uma
+//      "foto" dos valores de todos os campos.
+//   2. Ao tentar fechar (Cancelar, × ou clique fora), comparamos
+//      os campos atuais com a foto.
+//   3. Só pedimos confirmação se algo mudou — perguntar sempre
+//      seria irritante e o usuário passaria a confirmar no automático.
+
+let estadoInicialFormulario = '';
+
+// Junta os valores de todos os campos do modal numa única string,
+// que funciona como uma "impressão digital" do estado do formulário
+function capturarEstadoFormulario() {
+  const campos = document.querySelectorAll(
+    '#modal-formulario input, #modal-formulario select, #modal-formulario textarea'
+  );
+  return Array.from(campos).map(c => c.value).join('|');
+}
+
+// Chamada pelo abrirFormulario() de cada página.
+// No modo edição os campos já foram preenchidos antes — a foto
+// captura esse estado, então só conta como alteração o que o
+// usuário mudar a partir daí.
+function marcarFormularioAberto() {
+  estadoInicialFormulario = capturarEstadoFormulario();
+}
+
+// Chamada pelos botões Cancelar/× e pelo clique fora do modal.
+// Se houver alterações não salvas, pede confirmação antes de descartar.
+function cancelarFormulario() {
+  const alterado = capturarEstadoFormulario() !== estadoInicialFormulario;
+
+  if (!alterado) {
+    // Nada foi alterado — fecha direto, sem incomodar.
+    // limparFormulario() é a função de cada página (clientes.js, etc.)
+    limparFormulario();
+    return;
+  }
+
+  // Há alterações — abre o modal de confirmação estilizado
+  // (mesmo visual do modal de exclusão)
+  document.getElementById('modal-descarte').classList.add('visivel');
+}
+
+// "Continuar editando" — fecha só o modal de confirmação,
+// o formulário continua aberto com tudo intacto
+function fecharModalDescarte() {
+  document.getElementById('modal-descarte').classList.remove('visivel');
+}
+
+// "Descartar" — confirma a saída: fecha a confirmação e limpa o formulário
+function confirmarDescarte() {
+  fecharModalDescarte();
+  limparFormulario();
+}
+
+// Cria o modal de confirmação de descarte uma única vez, via JS —
+// mesmo padrão da sidebar: evita copiar este HTML em todas as páginas.
+// Só é criado nas páginas que têm formulário em modal.
+document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('modal-formulario')) return;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'modal-descarte';
+  modal.innerHTML = `
+    <div class="modal">
+      <h3>Descartar alterações?</h3>
+      <p>Há alterações não salvas no formulário. Se você sair agora, elas serão perdidas.</p>
+      <div class="modal-acoes">
+        <button class="btn btn-secundario" onclick="fecharModalDescarte()">Continuar editando</button>
+        <button class="btn btn-perigo" onclick="confirmarDescarte()">Descartar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+});
+
+
+// -------------------------------------------------------
 // FORMATAÇÃO
 // -------------------------------------------------------
 

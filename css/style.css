@@ -508,6 +508,12 @@ tbody td.td-acoes {
   color: var(--cor-texto-suave);
 }
 
+/* Modal de descarte de alterações — fica POR CIMA do modal de
+   formulário (ambos os overlays usam z-index 1000 por padrão) */
+#modal-descarte {
+  z-index: 1100;
+}
+
 /* --- Orçamento vencido --- */
 /* Destaca apenas a exceção: orçamentos válidos ficam com a data
    normal; vencidos ganham cor + etiqueta de texto (cor sozinha
