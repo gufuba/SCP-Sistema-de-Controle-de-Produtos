@@ -196,6 +196,21 @@
       </div>
     </div>
 
+    <!--
+      Modal de detalhes — visualização somente leitura do orçamento.
+      Abre ao clicar em qualquer lugar da linha na tabela.
+      O corpo é preenchido pelo JS (verOrcamento em orcamentos.js).
+    -->
+    <div class="modal-form-overlay" id="modal-detalhes">
+      <div class="modal-form modal-form-lg">
+        <div class="modal-form-header">
+          <h2>Detalhes do Orçamento</h2>
+          <button class="modal-form-fechar" onclick="fecharDetalhes()" title="Fechar">×</button>
+        </div>
+        <div class="modal-form-body" id="detalhes-corpo"></div>
+      </div>
+    </div>
+
   </main>
 
   <div class="modal-overlay" id="modal-exclusao">

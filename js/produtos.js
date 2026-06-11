@@ -46,6 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modal-formulario').addEventListener('click', function (e) {
     if (e.target === this) cancelarFormulario();
   });
+
+  // Detalhes é só visualização — não há dados a perder, fecha direto
+  document.getElementById('modal-detalhes').addEventListener('click', function (e) {
+    if (e.target === this) fecharDetalhes();
+  });
 });
 
 
@@ -180,7 +185,7 @@ function renderizarProdutos(lista, termo = '') {
   }
 
   tbody.innerHTML = lista.map(prod => `
-    <tr>
+    <tr class="linha-clicavel" onclick="verProduto(${prod.produtoid}, event)" title="Clique para ver os detalhes">
       <td><span style="font-family: var(--fonte-mono); font-size:12px">${prod.produtoid}</span></td>
       <td>${prod.categoria_produto?.ds_categoria_produto || '—'}</td>
       <td>${prod.ds_produto}</td>
@@ -196,6 +201,77 @@ function renderizarProdutos(lista, termo = '') {
       </td>
     </tr>
   `).join('');
+}
+
+
+// -------------------------------------------------------
+// VISUALIZAR — modal de detalhes somente leitura
+// -------------------------------------------------------
+// Aberto ao clicar em qualquer lugar da linha da tabela.
+// Mostra tudo, inclusive a observação (que não cabe na listagem).
+function verProduto(id, evento) {
+  // O clique nos botões de ação (Editar/Excluir) também "borbulha"
+  // até a linha — closest('button') detecta isso e ignora, senão
+  // os detalhes abririam junto com a ação do botão.
+  if (evento && evento.target.closest('button')) return;
+
+  // Os dados já estão no cache da listagem — sem nova consulta ao banco
+  const prod = produtosCache.find(p => p.produtoid === id);
+  if (!prod) return;
+
+  document.getElementById('detalhes-corpo').innerHTML = `
+    <div class="det-grid">
+      <div class="det-item">
+        <span>Código</span>
+        <strong>${prod.produtoid}</strong>
+      </div>
+      <div class="det-item">
+        <span>Categoria</span>
+        <strong>${prod.categoria_produto?.ds_categoria_produto || '—'}</strong>
+      </div>
+      <div class="det-item">
+        <span>Descrição</span>
+        <strong>${prod.ds_produto}</strong>
+      </div>
+      <div class="det-item">
+        <span>Valor de Venda</span>
+        <strong>${formatarMoeda(prod.vl_venda_produto)}</strong>
+      </div>
+      <div class="det-item">
+        <span>Data de Cadastro</span>
+        <strong>${formatarData(prod.dt_cadastro_produto)}</strong>
+      </div>
+      <div class="det-item">
+        <span>Status</span>
+        <span class="badge ${prod.status_produto === 'Ativo' ? 'badge-ativo' : 'badge-inativo'}">
+          ${prod.status_produto}
+        </span>
+      </div>
+      <div class="det-item det-obs">
+        <span>Observação</span>
+        <strong>${prod.obs_produto || 'Sem observações.'}</strong>
+      </div>
+    </div>
+
+    <div class="form-acoes">
+      <!-- Mesmas cores dos botões da listagem — o usuário já aprendeu
+           que amarelo = editar; mudar a cor aqui confundiria -->
+      <button class="btn btn-tabela-editar" onclick="editarDetalhes(${prod.produtoid})">Editar</button>
+      <button class="btn btn-secundario" onclick="fecharDetalhes()">Fechar</button>
+    </div>
+  `;
+
+  document.getElementById('modal-detalhes').classList.add('visivel');
+}
+
+function fecharDetalhes() {
+  document.getElementById('modal-detalhes').classList.remove('visivel');
+}
+
+// Atalho do modal de detalhes: fecha a visualização e abre a edição
+function editarDetalhes(id) {
+  fecharDetalhes();
+  editarProduto(id);
 }
 
 

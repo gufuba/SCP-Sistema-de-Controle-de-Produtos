@@ -61,6 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modal-formulario').addEventListener('click', function (e) {
     if (e.target === this) cancelarFormulario();
   });
+
+  // Detalhes é só visualização — não há dados a perder, fecha direto
+  document.getElementById('modal-detalhes').addEventListener('click', function (e) {
+    if (e.target === this) fecharDetalhes();
+  });
 });
 
 
@@ -461,7 +466,7 @@ function renderizarOrcamentos(lista, termo = '') {
                     orc.dt_validade_orcamento.slice(0, 10) < hoje;
 
     return `
-    <tr>
+    <tr class="linha-clicavel" onclick="verOrcamento(${orc.orcamentoid}, event)" title="Clique para ver os detalhes">
       <td><span style="font-family:var(--fonte-mono);font-size:12px">#${orc.orcamentoid}</span></td>
       <td>${orc.cliente?.nome_cliente || '—'}</td>
       <td>${formatarData(orc.dt_orcamento)}</td>
@@ -484,6 +489,128 @@ function renderizarOrcamentos(lista, termo = '') {
     </tr>
   `;
   }).join('');
+}
+
+
+// -------------------------------------------------------
+// VISUALIZAR — modal de detalhes somente leitura
+// -------------------------------------------------------
+// Aberto ao clicar em qualquer lugar da linha da tabela.
+// Mostra o cabeçalho completo + todos os itens, sem precisar
+// entrar no modo edição.
+async function verOrcamento(id, evento) {
+  // Ignora cliques que vieram dos botões de ação da linha
+  if (evento && evento.target.closest('button')) return;
+
+  // Busca cabeçalho (com dados do cliente) e itens em paralelo
+  const [resOrc, resItens] = await Promise.all([
+    dbClient
+      .from('orcamento')
+      .select('*, cliente ( nome_cliente, cpf_cnpj_cliente, tipo_cliente )')
+      .eq('orcamentoid', id)
+      .single(),
+    dbClient
+      .from('orcamento_item')
+      .select('*')
+      .eq('orcamentoid', id)
+      .order('orcamentoitemid', { ascending: true })
+  ]);
+
+  if (resOrc.error || !resOrc.data) {
+    mostrarToast('Erro ao carregar detalhes do orçamento.', 'erro');
+    console.error('Erro:', resOrc.error?.message);
+    return;
+  }
+
+  const orc   = resOrc.data;
+  const itens = resItens.data || [];
+
+  // Mesma checagem de vencimento da listagem
+  const agora = new Date();
+  const hoje = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
+  const vencido = orc.dt_validade_orcamento &&
+                  orc.dt_validade_orcamento.slice(0, 10) < hoje;
+
+  document.getElementById('detalhes-corpo').innerHTML = `
+    <div class="det-grid">
+      <div class="det-item">
+        <span>Número</span>
+        <strong>#${orc.orcamentoid}</strong>
+      </div>
+      <div class="det-item">
+        <span>Cliente</span>
+        <strong>${orc.cliente?.nome_cliente || '—'}</strong>
+      </div>
+      <div class="det-item">
+        <span>CPF / CNPJ</span>
+        <strong>${orc.cliente?.cpf_cnpj_cliente || '—'}</strong>
+      </div>
+      <div class="det-item">
+        <span>Data do Orçamento</span>
+        <strong>${formatarData(orc.dt_orcamento)}</strong>
+      </div>
+      <div class="det-item">
+        <span>Validade</span>
+        <strong>
+          ${vencido
+            ? `<span class="data-vencida">${formatarData(orc.dt_validade_orcamento)}</span><span class="badge-vencido">Vencido</span>`
+            : formatarData(orc.dt_validade_orcamento)}
+        </strong>
+      </div>
+      <div class="det-item">
+        <span>Valor Total</span>
+        <strong>${formatarMoeda(orc.vl_total_orcamento)}</strong>
+      </div>
+    </div>
+
+    <div class="card-secao">Itens do Orçamento</div>
+    <div class="tabela-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Cód.</th>
+            <th>Descrição</th>
+            <th>Qtd</th>
+            <th>Vlr Unitário</th>
+            <th>Vlr Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itens.length === 0
+            ? '<tr><td colspan="5" class="tabela-vazia">Nenhum item neste orçamento.</td></tr>'
+            : itens.map(item => `
+              <tr>
+                <td>${item.produtoid}</td>
+                <td>${item.produtodesc}</td>
+                <td>${item.qt_produto}</td>
+                <td>${formatarMoeda(item.vl_unitario)}</td>
+                <td><strong>${formatarMoeda(item.vl_total)}</strong></td>
+              </tr>
+            `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-acoes">
+      <!-- Mesmas cores dos botões da listagem — o usuário já aprendeu
+           que amarelo = editar e azul = imprimir; mudar a cor aqui confundiria -->
+      <button class="btn btn-tabela-editar" onclick="editarDetalhes(${orc.orcamentoid})">Editar</button>
+      <button class="btn btn-tabela-imprimir" onclick="imprimirOrcamento(${orc.orcamentoid})">Imprimir</button>
+      <button class="btn btn-secundario" onclick="fecharDetalhes()">Fechar</button>
+    </div>
+  `;
+
+  document.getElementById('modal-detalhes').classList.add('visivel');
+}
+
+function fecharDetalhes() {
+  document.getElementById('modal-detalhes').classList.remove('visivel');
+}
+
+// Atalho do modal de detalhes: fecha a visualização e abre a edição
+function editarDetalhes(id) {
+  fecharDetalhes();
+  editarOrcamento(id);
 }
 
 
