@@ -395,7 +395,7 @@ async function confirmarExclusao() {
   fecharModal();
 
   if (error) {
-    mostrarToast('Erro ao excluir produto.', 'erro');
+    mostrarToast('Erro ao excluir produto. Confirme se o produto não está atrelado a algum orçamento.', 'erro');
     console.error('Erro:', error.message);
     return;
   }
