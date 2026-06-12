@@ -26,35 +26,9 @@ Todas as telas possuem CRUD completo (inserir, listar, editar e excluir) com val
 ## Tecnologias utilizadas
 
 - HTML5
-- CSS3 (variáveis CSS, Grid, Flexbox)
-- JavaScript ES6+ (async/await, módulos)
+- CSS3 
+- JavaScript ES6+ 
 - [Supabase](https://supabase.com) — banco de dados PostgreSQL em nuvem
-- Fonte: [DM Sans + DM Mono](https://fonts.google.com) via Google Fonts
-
----
-
-## Estrutura de arquivos
-
-```
-scp/
-├── index.html          # Tela de login
-├── home.html           # Dashboard
-├── clientes.html
-├── categorias.html
-├── produtos.html
-├── orcamentos.html
-├── css/
-│   └── style.css       # Estilos globais
-└── js/
-    ├── supabase.js     # Configuração da conexão
-    ├── sidebar.js      # Componente de navegação reutilizável
-    ├── login.js
-    ├── home.js
-    ├── clientes.js
-    ├── categorias.js
-    ├── produtos.js
-    └── orcamentos.js
-```
 
 ---
 
